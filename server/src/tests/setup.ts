@@ -1,3 +1,6 @@
+// At the very top of the file, before any imports that might read process.env
+process.env.JWT_SECRET = "test-secret-key-for-vitest-only";
+
 import { beforeAll, afterEach, afterAll } from "vitest";
 import mongoose from "mongoose";
 import { MongoMemoryServer } from "mongodb-memory-server";
@@ -15,7 +18,6 @@ beforeAll(async () => {
   mongoServer = await MongoMemoryServer.create();
   await mongoose.connect(mongoServer.getUri());
 
-  // Wait for all unique/compound indexes to finish building before any test runs
   await Promise.all([
     User.init(),
     Team.init(),
@@ -29,11 +31,8 @@ beforeAll(async () => {
 
 afterEach(async () => {
   const collections = mongoose.connection.collections;
-  for (const key in collections) {
-    const collection = collections[key];
-    if (collection) {
-      await collection.deleteMany({});
-    }
+  for (const collection of Object.values(collections)) {
+    await collection.deleteMany({});
   }
 });
 
