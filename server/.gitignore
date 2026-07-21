@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+*.tsbuildinfo
+
+# Stray root-level compiled artifacts
+*.js.map
+*.d.ts
+*.d.ts.map
+!src/**/*.d.ts
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Testing
+.vitest-cache/
+coverage/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
