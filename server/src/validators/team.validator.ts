@@ -6,6 +6,7 @@ const objectIdString = yup
 
 export const createTeamSchema = yup.object({
   name: yup.string().trim().required("Team name is required"),
+  members: yup.array().of(objectIdString).optional(),
 });
 
 export const updateTeamSchema = createTeamSchema.partial();

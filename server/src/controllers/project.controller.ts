@@ -19,8 +19,8 @@ export const getAllProjects = async (req: Request, res: Response) => {
     }
 
     const myTeams = await Team.find({
-      members: new Types.ObjectId(userId),
-    }).select("_id");
+      members: [new Types.ObjectId(userId)],
+    } as any).select("_id");
     const myTeamIds = myTeams.map((t) => t._id);
 
     const projects = await Project.find({

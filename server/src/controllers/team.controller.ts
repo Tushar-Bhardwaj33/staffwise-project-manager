@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import { Types } from "mongoose";
 import { Team } from "../models/Team.model.js";
+import type { ITeam } from "../types/team.type.js";
 
 export const getAllTeams = async (req: Request, res: Response) => {
   try {
@@ -29,17 +30,25 @@ export const getTeamById = async (req: Request, res: Response) => {
 
 export const createTeam = async (req: Request, res: Response) => {
   try {
-    const { name, members } = req.body as { name: string; members?: string[] };
+    const { name, members } = req.body;
     const createdBy = req.user?.id;
+
+    console.log("createTeam request body:", req.body);
 
     if (!createdBy) {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
-    const memberIds = members?.map((memberId) => new Types.ObjectId(memberId));
+    const existingTeam = await Team.findOne({ name });
+
+    if (existingTeam) {
+      return res.status(400).json({ message: "Team name already exists" });
+    }
+
+    const memberIds = members?.map((memberId: string) => new Types.ObjectId(memberId));
     const teamData = {
       name,
-      createdBy: new Types.ObjectId(createdBy),
+      createdBy: new Types.ObjectId(createdBy) as any,
       ...(memberIds ? { members: memberIds } : {}),
     };
 
@@ -102,7 +111,8 @@ export const addMemberToTeam = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "User is already a member of the team" });
     }
 
-    team.members.push(new Types.ObjectId(userId));
+    const memberObjectId = new Types.ObjectId(userId) as unknown as typeof team.members[number];
+    team.members.push(memberObjectId);
     await team.save();
 
     res.status(200).json({ team });
