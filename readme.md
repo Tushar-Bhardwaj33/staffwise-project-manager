@@ -1,4 +1,4 @@
-# TeamForge
+# Staffwise
  
 Staffing platform for matching employees to projects via teams, with an AI assistant for staffing suggestions.
  
