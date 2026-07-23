@@ -12,3 +12,8 @@ router.post("/logout", logout);
 router.get("/me", authMiddleware, getMe);
 
 export default router;
+
+// POST /api/auth/register "`High` Create employee account (validates email + employeeId uniqueness)"
+// POST /api/auth/login "`High` Authenticate, issue JWT"
+// POST /api/auth/logout "`High` Clear session"
+// GET /api/auth/me "`High` Current user"
