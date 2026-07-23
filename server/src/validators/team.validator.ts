@@ -8,6 +8,8 @@ export const createTeamSchema = yup.object({
   name: yup.string().trim().required("Team name is required"),
 });
 
+export const updateTeamSchema = createTeamSchema.partial();
+
 export const addMemberSchema = yup.object({
   userId: objectIdString.required("userId is required"),
 });
