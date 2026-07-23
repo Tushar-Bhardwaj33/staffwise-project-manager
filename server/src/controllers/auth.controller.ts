@@ -1,4 +1,5 @@
 import type { Request, Response } from "express";
+import Type from "mongoose";
 import { User } from "../models/User.model.js";
 import { hashPassword, comparePassword } from "../utils/hashPassword.js";
 import { signToken } from "../utils/jwt.js";
@@ -34,7 +35,7 @@ export const register = async (req: Request, res: Response) => {
 
     res.cookie("token", token, COOKIE_OPTIONS);
     res.status(201).json({
-      user: { id: user._id, name: user.name, email: user.email, role: user.role },
+      user: user,
     });
   } catch (err) {
     console.error("Register error:", err);
@@ -58,10 +59,13 @@ export const login = async (req: Request, res: Response) => {
 
     const token = signToken({ id: user._id.toString(), role: user.role });
 
+    const { passwordHash, ...safeUser } = user.toObject();
+
     res.cookie("token", token, COOKIE_OPTIONS);
     res.status(200).json({
-      user: { id: user._id, name: user.name, email: user.email, role: user.role },
-    });
+      user: safeUser,
+    } as any);
+
   } catch (err) {
     console.error("Login error:", err);
     res.status(500).json({ message: "Something went wrong during login" });
