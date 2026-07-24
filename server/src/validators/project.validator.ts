@@ -1,7 +1,6 @@
 import * as yup from "yup";
 
 export const createProjectSchema = yup.object({
-  title: yup.string().trim().required("Title is required"),
   description: yup.string().trim().required("Description is required"),
   type: yup
     .mixed<"personal" | "company" | "product" | "client">()

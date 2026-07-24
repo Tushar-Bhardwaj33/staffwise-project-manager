@@ -1,17 +1,6 @@
 import { Schema, model, Document, Types } from "mongoose";
 
-export interface IProject extends Document {
-  title: string;
-  description: string;
-  type: "personal" | "company" | "product" | "client";
-  requiredSkills: string[];
-  startDate: Date;
-  endDate: Date;
-  assignedTeams: Types.ObjectId[];
-  createdBy: Types.ObjectId;
-  createdAt: Date;
-  updatedAt: Date;
-}
+import type { IProject } from "../types/project.types.js";
 
 const projectSchema = new Schema<IProject>(
   {
