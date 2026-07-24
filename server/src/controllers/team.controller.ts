@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import { Types } from "mongoose";
 import { Team } from "../models/Team.model.js";
-import type { ITeam } from "../types/team.type.js";
+import type { ITeam } from "../types/team.types.js";
 
 export const getAllTeams = async (req: Request, res: Response) => {
   try {
