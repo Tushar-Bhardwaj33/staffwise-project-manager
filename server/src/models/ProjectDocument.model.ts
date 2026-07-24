@@ -1,6 +1,6 @@
-import { Schema, model, Document, Types } from "mongoose";
+import { Schema, model, Types } from "mongoose";
 
-export interface IProjectDocument extends Document {
+export interface IProjectDocument {
   project: Types.ObjectId;
   title: string;
   r2Key: string;
@@ -8,11 +8,12 @@ export interface IProjectDocument extends Document {
   mimeType: string;
   size: number;
   uploadedBy: Types.ObjectId;
+  createdAt: Date;
 }
 
 const projectDocumentSchema = new Schema<IProjectDocument>(
   {
-    project: { type: Schema.Types.ObjectId, ref: "Project", required: true },
+    project: { type: Schema.Types.ObjectId, ref: "Project", required: true, index: true },
     title: { type: String, required: true },
     r2Key: { type: String, required: true },
     filename: { type: String, required: true },
@@ -23,20 +24,4 @@ const projectDocumentSchema = new Schema<IProjectDocument>(
   { timestamps: { createdAt: true, updatedAt: false } }
 );
 
-export const ProjectDocument = model<IProjectDocument>(
-  "ProjectDocument",
-  projectDocumentSchema
-);
-
-//ProjectDocument–-H
-// {
-// _id:ObjectId,
-// project:ObjectId, //refProject
-// title:string,
-// r2Key:string, //CloudflareR2objectkey
-// filename:string, //originalfilename
-// mimeType:string,
-// size:number, //bytes
-// uploadedBy:ObjectId, //refUser
-// createdAt:Date
-// }
+export const ProjectDocument = model<IProjectDocument>("ProjectDocument", projectDocumentSchema);
