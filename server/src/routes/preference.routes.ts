@@ -10,7 +10,7 @@ import {
 
 const router = Router();
 
-router.post("/preferences", authMiddleware, requireRole("admin"), validate(submitPreferenceSchema), submitPreference);
-router.get("/preferences/:projectId", authMiddleware, viewPreferences);
+router.post("/preferences", authMiddleware, validate(submitPreferenceSchema), submitPreference);
+router.get("/preferences/:projectId", authMiddleware, requireRole("admin"), viewPreferences);
 
 export default router;
