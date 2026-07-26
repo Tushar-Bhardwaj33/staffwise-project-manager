@@ -10,7 +10,11 @@ export const validate =
       next();
     } catch (err) {
       if (err instanceof ValidationError) {
-        return res.status(400).json({ errors: err.errors });
+        const errors = err.inner.reduce<Record<string, string>>((acc, e) => {
+          if (e.path) acc[e.path] = e.message;
+          return acc;
+        }, {});
+        return res.status(400).json({ errors });
       }
       next(err);
     }
