@@ -28,6 +28,6 @@ export const logout = async () => {
 }
 
 export const getCurrentUser = async () => {
-  const response = await api.get<IUser>("auth/me");
-  return response.data;
+  const response = await api.get<IAuthResponse>("auth/me");
+  return response.data.user;
 }
