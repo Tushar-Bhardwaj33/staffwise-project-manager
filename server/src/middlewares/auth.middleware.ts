@@ -11,11 +11,7 @@ declare global {
 }
 
 export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
-  const authHeader = req.headers.authorization;
-  const cookieToken = req.cookies?.token;
-  const token = authHeader?.startsWith("Bearer ")
-    ? authHeader.split(" ")[1]
-    : cookieToken;
+  const token = req.cookies?.token;
 
   if (!token) {
     return res.status(401).json({ message: "No token provided" });

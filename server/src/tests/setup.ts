@@ -9,7 +9,7 @@ import { Team } from "../models/Team.model.js";
 import { Project } from "../models/Project.model.js";
 import { Preference } from "../models/Preference.model.js";
 import { ProjectDocument } from "../models/ProjectDocument.model.js";
-import { Comment } from "../models/Comment.model.js";
+// import { Comment } from "../models/Comment.model.js";
 import { AIQueryLog } from "../models/AIQueryLog.model.js";
 
 let mongoServer: MongoMemoryServer;
@@ -24,7 +24,7 @@ beforeAll(async () => {
     Project.init(),
     Preference.init(),
     ProjectDocument.init(),
-    Comment.init(),
+    // Comment.init(),
     AIQueryLog.init(),
   ]);
 });

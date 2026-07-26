@@ -21,7 +21,8 @@ tags:
   - name: Teams on Projects
   - name: Preferences
   - name: Documents
-  - name: Comments
+  - name: Discussions
+  - name: History
   - name: AI
   - name: Admin
 
@@ -194,6 +195,107 @@ components:
             type: string
         isPinned:
           type: boolean
+        createdAt:
+          type: string
+          format: date-time
+
+    Reflection:
+      type: object
+      properties:
+        _id:
+          type: string
+        employeeId:
+          type: string
+        projectId:
+          type: string
+        whatBuilt:
+          type: string
+        whatWentWell:
+          type: string
+        whatWentWrong:
+          type: string
+        skillsGainedOrUsed:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    Validation:
+      type: object
+      properties:
+        _id:
+          type: string
+        adminId:
+          type: string
+        employeeId:
+          type: string
+        projectId:
+          type: string
+        performanceScores:
+          type: object
+          properties:
+            technical:
+              type: number
+            collaboration:
+              type: number
+            ownership:
+              type: number
+        skillValidation:
+          type: array
+          items:
+            type: string
+        qualitativeNote:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    DiscussionTopic:
+      type: object
+      properties:
+        _id:
+          type: string
+        project:
+          type: string
+        author:
+          type: string
+        title:
+          type: string
+        content:
+          type: string
+        upvotes:
+          type: array
+          items:
+            type: string
+        isPinned:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+
+    DiscussionComment:
+      type: object
+      properties:
+        _id:
+          type: string
+        topic:
+          type: string
+        parentComment:
+          type: string
+          nullable: true
+        replyingToAuthor:
+          type: string
+          nullable: true
+        author:
+          type: string
+        content:
+          type: string
+        upvotes:
+          type: array
+          items:
+            type: string
         createdAt:
           type: string
           format: date-time
@@ -632,6 +734,229 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
+  # ---------------- HISTORY ----------------
+  /history/reflections:
+    post:
+      tags: [History]
+      summary: Submit an employee reflection
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [projectId, whatBuilt, whatWentWell, whatWentWrong, skillsGainedOrUsed]
+              properties:
+                projectId:
+                  type: string
+                whatBuilt:
+                  type: string
+                whatWentWell:
+                  type: string
+                whatWentWrong:
+                  type: string
+                skillsGainedOrUsed:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '201':
+          description: Reflection submitted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reflection:
+                    $ref: '#/components/schemas/Reflection'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /history/validations:
+    post:
+      tags: [History]
+      summary: Submit an admin validation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [projectId, employeeId, performanceScores, skillValidation, qualitativeNote]
+              properties:
+                projectId:
+                  type: string
+                employeeId:
+                  type: string
+                performanceScores:
+                  type: object
+                  properties:
+                    technical:
+                      type: number
+                    collaboration:
+                      type: number
+                    ownership:
+                      type: number
+                skillValidation:
+                  type: array
+                  items:
+                    type: string
+                qualitativeNote:
+                  type: string
+      responses:
+        '201':
+          description: Validation submitted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  validation:
+                    $ref: '#/components/schemas/Validation'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /history/reflections/project/{projectId}:
+    parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      tags: [History]
+      summary: Get reflections for a project (Admin only)
+      responses:
+        '200':
+          description: Reflections for the project
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reflections:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Reflection'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /history/reflections/{employeeId}/{projectId}:
+    parameters:
+      - name: employeeId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      tags: [History]
+      summary: Get reflection for a specific employee and project
+      responses:
+        '200':
+          description: Reflection detail
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reflection:
+                    $ref: '#/components/schemas/Reflection'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /history/validations/{employeeId}/{projectId}:
+    parameters:
+      - name: employeeId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      tags: [History]
+      summary: Get validations for an employee and project
+      responses:
+        '200':
+          description: Validations for the employee and project
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  validations:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Validation'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /history/validations/mine/{employeeId}/{projectId}:
+    parameters:
+      - name: employeeId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      tags: [History]
+      summary: Get the current admin's validation for an employee and project
+      responses:
+        '200':
+          description: Validation detail
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  validation:
+                    $ref: '#/components/schemas/Validation'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /history/skills/{employeeId}/{projectId}:
+    parameters:
+      - name: employeeId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      tags: [History]
+      summary: Get validated skills for an employee and project
+      responses:
+        '200':
+          description: Validated skills
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  skills:
+                    type: array
+                    items:
+                      type: string
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
   # ---------------- PROJECTS ----------------
   /projects:
     get:
@@ -981,7 +1306,7 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
-  /projects/{id}/comments:
+  /projects/{id}/discussions/topics:
     parameters:
       - name: id
         in: path
@@ -989,25 +1314,144 @@ paths:
         schema:
           type: string
     get:
-      tags: [Comments]
-      summary: List comments (pinned first, one level of replies) — requires team membership
+      tags: [Discussions]
+      summary: List discussion topics for a project
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
       responses:
         '200':
-          description: List of comments
+          description: Paginated discussion topics
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  comments:
+                  topics:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Comment'
+                      $ref: '#/components/schemas/DiscussionTopic'
+                  page:
+                    type: integer
+                  limit:
+                    type: integer
         '403':
           $ref: '#/components/responses/Forbidden'
     post:
-      tags: [Comments]
-      summary: Post a comment (optionally a reply) — requires team membership
+      tags: [Discussions]
+      summary: Create a discussion topic
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title, content]
+              properties:
+                title:
+                  type: string
+                content:
+                  type: string
+      responses:
+        '201':
+          description: Topic created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiscussionTopic'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /projects/{id}/discussions/topics/{topicId}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: topicId
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      tags: [Discussions]
+      summary: Get one topic with its threaded comments
+      responses:
+        '200':
+          description: Topic detail
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  topic:
+                    $ref: '#/components/schemas/DiscussionTopic'
+                  comments:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/DiscussionComment'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags: [Discussions]
+      summary: Edit a topic you created
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                content:
+                  type: string
+      responses:
+        '200':
+          description: Topic updated
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags: [Discussions]
+      summary: Delete a topic
+      responses:
+        '200':
+          description: Topic deleted
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /projects/{id}/discussions/topics/{topicId}/comments:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: topicId
+        in: path
+        required: true
+        schema:
+          type: string
+    post:
+      tags: [Discussions]
+      summary: Create a comment or reply on a topic
       requestBody:
         required: true
         content:
@@ -1016,33 +1460,25 @@ paths:
               type: object
               required: [content]
               properties:
-                title:
-                  type: string
-                  description: Required for top-level topics, omit for replies
                 content:
                   type: string
                 parentComment:
                   type: string
-              examples:
-                topLevelTopic:
-                  summary: New top-level topic
-                  value:
-                    title: Kickoff discussion
-                    content: When are we planning to start the sprint?
-                reply:
-                  summary: Reply to an existing comment
-                  value:
-                    content: I think we should start next Monday.
-                    parentComment: "665f1a2b3c4d5e6f7a8b9c0e"
       responses:
         '201':
           description: Comment created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiscussionComment'
         '400':
           $ref: '#/components/responses/ValidationError'
         '403':
           $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
 
-  /projects/{id}/comments/{commentId}/upvote:
+  /projects/{id}/discussions/comments/{commentId}:
     parameters:
       - name: id
         in: path
@@ -1054,9 +1490,52 @@ paths:
         required: true
         schema:
           type: string
-    post:
-      tags: [Comments]
-      summary: Toggle upvote for current user
+    patch:
+      tags: [Discussions]
+      summary: Edit a comment you created
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [content]
+              properties:
+                content:
+                  type: string
+      responses:
+        '200':
+          description: Comment updated
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags: [Discussions]
+      summary: Delete a comment or its replies
+      responses:
+        '200':
+          description: Comment deleted
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /projects/{id}/discussions/topics/{topicId}/upvote:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: topicId
+        in: path
+        required: true
+        schema:
+          type: string
+    patch:
+      tags: [Discussions]
+      summary: Toggle upvote for a topic
       responses:
         '200':
           description: Upvote toggled
@@ -1065,7 +1544,7 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
-  /projects/{id}/comments/{commentId}/pin:
+  /projects/{id}/discussions/comments/{commentId}/upvote:
     parameters:
       - name: id
         in: path
@@ -1077,12 +1556,35 @@ paths:
         required: true
         schema:
           type: string
-    put:
-      tags: [Comments]
-      summary: Pin this comment (Admin only)
+    patch:
+      tags: [Discussions]
+      summary: Toggle upvote for a comment
       responses:
         '200':
-          description: Comment pinned
+          description: Upvote toggled
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /projects/{id}/discussions/topics/{topicId}/pin:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: topicId
+        in: path
+        required: true
+        schema:
+          type: string
+    patch:
+      tags: [Discussions]
+      summary: Pin or unpin a topic (Admin only)
+      responses:
+        '200':
+          description: Topic pin state updated
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
