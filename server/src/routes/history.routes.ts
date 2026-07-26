@@ -16,7 +16,7 @@ import {
 const router = Router();
 
 // Employee submits their own reflection (employeeId is set server-side from the token)
-router.post("/reflections", authMiddleware, isSelfOrAdmin, validate(employeeReflectionSchema), submitReflection);
+router.post("/reflections", authMiddleware, requireRole("employee"), validate(employeeReflectionSchema), submitReflection);
 
 // Admin submits their own validation (adminId is set server-side from the token)
 router.post("/validations", authMiddleware, requireRole("admin"), validate(adminValidationSchema), submitValidation);

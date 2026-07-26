@@ -12,6 +12,7 @@ import projectRoutes from "./routes/project.routes.js";
 import { errorMiddleware } from "./middlewares/error.middleware.js";
 import documentsRouter from "./routes/documents.routes.js";
 import discussionsRouter from "./routes/discussions.routes.js";
+import historyRouter from "./routes/history.routes.js";
 
 const app = express();
 
@@ -34,6 +35,7 @@ app.use("/api/teams", teamRoutes);
 app.use("/api/projects", projectRoutes);
 app.use("/api/projects/:id/documents", documentsRouter);
 app.use("/api/projects/:id/discussions", discussionsRouter);
+app.use("/api/history", historyRouter);
 
 app.use(errorMiddleware);
 
