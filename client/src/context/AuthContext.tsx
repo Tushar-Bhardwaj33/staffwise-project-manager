@@ -1,18 +1,8 @@
-import { createContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import * as authService from "../services/auth.service";
 import type { IRegisterPayload } from "../services/auth.service";
-import type { IUser } from "../types/user.type";
-
-interface AuthContextValue {
-  user: IUser | null;
-  isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  register: (payload: IRegisterPayload) => Promise<void>;
-  logout: () => Promise<void>;
-}
-
-export const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+import { AuthContext } from "./authContext";
 
 interface AuthProviderProps {
   children: ReactNode;

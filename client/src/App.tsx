@@ -1,25 +1,8 @@
-import { Navigate, Route, Routes } from "react-router-dom";
-import { ProtectedRoute } from "./components/ProtectedRoute";
-import Dashboard from "./pages/DashBoard.tsx";
-import Login from "./pages/Register.tsx";
-import Register from "./pages/Login.tsx";
+import AuthCard from "./pages/AuthCard.tsx";
+import "./App.css";
 
 function App() {
-  return (
-    <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      <Route
-        path="/"
-        element={
-          <ProtectedRoute>
-            <Dashboard />
-          </ProtectedRoute>
-        }
-      />
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
-  );
+  return <AuthCard />;
 }
 
 export default App;
