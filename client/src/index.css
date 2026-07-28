@@ -1,4 +1,10 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  /* Add project-level CSS variables and small utility overrides here */
+}
 
 @theme {
   --color-brand: #20beff;

@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import * as authService from "../services/auth.service";
 import type { IRegisterPayload } from "../services/auth.service";
-import { AuthContext } from "./authContext";
+import type { IUser } from "../types/user.type";
+import { AuthContext } from "./AuthContext";
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -12,9 +13,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<IUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // On mount, the token is an httpOnly cookie the browser already holds
-  // (if the user has one from a previous session), so we just ask the
-  // API who that cookie belongs to.
   useEffect(() => {
     let isMounted = true;
 

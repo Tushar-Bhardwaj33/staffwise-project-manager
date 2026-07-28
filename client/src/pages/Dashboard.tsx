@@ -1,53 +1,141 @@
-// src/pages/Dashboard.tsx
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { useAuth } from "../context/useAuth";
+import { getAllProjects } from "../services/project.service";
+import type { IProject } from "../types/project.type";
+import { ProjectCard } from "../components/ProjectCard";
+import { PageSpinner } from "../components/ui/Spinner";
+import { EmptyState } from "../components/ui/EmptyState";
+import { PageHeader } from "../components/ui/PageHeader";
 
 export default function Dashboard() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
+  const [projects, setProjects] = useState<IProject[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getAllProjects()
+      .then(setProjects)
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, []);
+
+  const unassigned = projects.filter((p) => !p.assignedTeams || p.assignedTeams.length === 0);
+  const recent = projects.slice(0, 6);
+
+  const [stats, setStats] = useState({
+    total: 0,
+    unassigned: 0,
+    active: 0,
+    completed: 0,
+    assigned: 0,
+    upcoming: 0,
+  });
+
+  useEffect(() => {
+    let mounted = true;
+    const now = Date.now(); // allowed inside effect
+    const newStats = {
+      total: projects.length,
+      unassigned: unassigned.length,
+      active: projects.filter((p) => new Date(p.startDate).getTime() <= now && new Date(p.endDate).getTime() >= now).length,
+      completed: projects.filter((p) => new Date(p.endDate).getTime() < now).length,
+      assigned: projects.filter((p) => p.assignedTeams?.length > 0).length,
+      upcoming: projects.filter((p) => new Date(p.startDate).getTime() > now).length,
+    };
+
+    // schedule update asynchronously to avoid cascading synchronous renders
+    const timer = setTimeout(() => {
+      if (mounted) setStats(newStats);
+    }, 0);
+
+    return () => {
+      mounted = false;
+      clearTimeout(timer);
+    };
+  }, [projects, unassigned]);
+
+  if (loading) return <PageSpinner />;
 
   return (
-    <div className="min-h-screen bg-surface">
-      <header className="flex items-center justify-between border-b border-border bg-surface-raised px-6 py-4">
-        <div className="flex items-center gap-2">
-          <span className="h-2 w-2 rounded-full bg-brand" />
-          <span className="text-sm font-semibold uppercase tracking-wide text-ink-soft">
-            Staffwise
-          </span>
-        </div>
-        <button
-          onClick={() => void logout()}
-          className="text-sm font-medium text-ink-soft transition-colors hover:text-ink"
-        >
-          Log out
-        </button>
-      </header>
+    <div className="p-6 max-w-6xl mx-auto">
+      <PageHeader
+        title={`Welcome back, ${user?.name?.split(" ")[0]}`}
+        subtitle={user?.role === "admin" ? "Here's what needs your attention" : "Here are your active projects"}
+        action={
+          user?.role === "admin" ? (
+            <Link
+              to="/admin/projects/new"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-[#20beff] px-4 py-2 text-sm font-semibold text-white hover:bg-[#0f9fdb] transition-colors"
+            >
+              + New project
+            </Link>
+          ) : undefined
+        }
+      />
 
-      <main className="mx-auto flex max-w-2xl flex-col items-center px-4 py-24 text-center">
-        <span className="mb-4 inline-flex items-center rounded-full bg-brand/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-brand">
-          In progress
-        </span>
+      {/* Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <StatCard label="Total projects" value={stats.total} />
+        {user?.role === "admin" ? (
+          <>
+            <StatCard label="Needs team" value={stats.unassigned} highlight={stats.unassigned > 0} />
+            <StatCard label="Active" value={stats.active} />
+            <StatCard label="Completed" value={stats.completed} />
+          </>
+        ) : (
+          <>
+            <StatCard label="Assigned" value={stats.assigned} />
+            <StatCard label="Upcoming" value={stats.upcoming} />
+            <StatCard label="Completed" value={stats.completed} />
+          </>
+        )}
+      </div>
 
-        <h1 className="text-2xl font-semibold text-ink">Welcome, {user?.name}</h1>
-        <p className="mt-2 max-w-md text-sm text-ink-soft">
-          Your dashboard is still being built — projects, teams, and documents
-          will show up here soon. For now, here&apos;s what we know about you:
-        </p>
-
-        <dl className="mt-8 w-full max-w-xs space-y-2 rounded-lg border border-border bg-surface-raised p-6 text-left text-sm">
-          <div className="flex justify-between">
-            <dt className="font-medium text-ink">Employee ID</dt>
-            <dd className="text-ink-soft">{user?.employeeId}</dd>
+      {/* Admin: unassigned projects callout */}
+      {user?.role === "admin" && unassigned.length > 0 && (
+        <section className="mb-8">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-sm font-semibold text-[#0f1419] uppercase tracking-wide">
+              ⚠ Awaiting team assignment
+            </h2>
+            <Link to="/projects" className="text-xs text-[#20beff] hover:underline">View all →</Link>
           </div>
-          <div className="flex justify-between">
-            <dt className="font-medium text-ink">Role</dt>
-            <dd className="text-ink-soft">{user?.role}</dd>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {unassigned.slice(0, 3).map((p) => (
+              <ProjectCard key={p._id} project={p} showManage />
+            ))}
           </div>
-        </dl>
+        </section>
+      )}
 
-        <div className="mt-8 h-1.5 w-full max-w-xs overflow-hidden rounded-full bg-border">
-          <div className="h-full w-1/3 rounded-full bg-brand" />
+      {/* Recent projects */}
+      <section>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-sm font-semibold text-[#0f1419] uppercase tracking-wide">
+            {user?.role === "admin" ? "All projects" : "Your projects"}
+          </h2>
+          <Link to="/projects" className="text-xs text-[#20beff] hover:underline">View all →</Link>
         </div>
-        <p className="mt-2 text-xs text-ink-soft">Auth &amp; theme done — pages next</p>
-      </main>
+        {recent.length === 0 ? (
+          <EmptyState title="No projects yet" description="Projects will appear here once they're created." />
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {recent.map((p) => (
+              <ProjectCard key={p._id} project={p} showManage={user?.role === "admin"} />
+            ))}
+          </div>
+        )}
+      </section>
+    </div>
+  );
+}
+
+function StatCard({ label, value, highlight }: { label: string; value: number; highlight?: boolean }) {
+  return (
+    <div className={`rounded-xl border p-4 ${highlight ? "border-amber-200 bg-amber-50" : "border-[#e3e8ee] bg-white"}`}>
+      <p className="text-2xl font-bold text-[#0f1419]">{value}</p>
+      <p className="text-xs text-[#9ca3af] mt-0.5">{label}</p>
     </div>
   );
 }
