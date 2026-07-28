@@ -96,9 +96,16 @@ export const getUserHistory = async (req: Request, res: Response) => {
       return res.status(403).json({ message: "Forbidden — you can only view your own history" });
     }
 
-    const history = await Preference.find({ employee: new Types.ObjectId(userId) })
-      .populate("project")
+    const { EmployeeReflection } = await import("../models/History.model.js");
+
+    const reflections = await EmployeeReflection.find({ employeeId: new Types.ObjectId(userId) })
+      .populate("projectId")
       .sort({ createdAt: -1 });
+
+    // The frontend expects an array of projects for the history tab
+    const history = reflections
+      .map((r: any) => r.projectId)
+      .filter(Boolean);
 
     res.status(200).json({ history });
   } catch (err) {
