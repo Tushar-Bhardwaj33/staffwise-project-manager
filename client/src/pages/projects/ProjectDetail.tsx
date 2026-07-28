@@ -12,6 +12,7 @@ import DocumentsTab from "./tabs/DocumentsTab";
 import DiscussionTab from "./tabs/DiscussionTab";
 import TeamTab from "./tabs/TeamTab";
 import AITab from "./tabs/AITab";
+import ReflectionsTab from "./tabs/ReflectionsTab";
 
 const TABS = [
   { id: "overview", label: "Overview" },
@@ -19,6 +20,7 @@ const TABS = [
   { id: "discussion", label: "Discussion" },
   { id: "team", label: "Team" },
   { id: "ai", label: "AI Assistant" },
+  { id: "reflections", label: "Reflections" },
 ];
 
 export default function ProjectDetail() {
@@ -94,6 +96,7 @@ export default function ProjectDetail() {
         {isAssigned && activeTab === "discussion" && <DiscussionTab projectId={project._id} />}
         {isAssigned && activeTab === "team" && <TeamTab project={project} />}
         {isAssigned && activeTab === "ai" && <AITab projectId={project._id} projectTitle={project.title} />}
+        {isAssigned && activeTab === "reflections" && <ReflectionsTab projectId={project._id} />}
       </div>
     </div>
   );
