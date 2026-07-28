@@ -14,6 +14,8 @@ import documentsRouter from "./routes/documents.routes.js";
 import discussionsRouter from "./routes/discussions.routes.js";
 import historyRouter from "./routes/history.routes.js";
 import preferenceRouter from "./routes/preference.routes.js";
+import aiRoutes from "./routes/ai.routes.js";
+
 process.env.FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
 const FRONTEND_URL = process.env.FRONTEND_URL;
 const app = express();
@@ -39,6 +41,8 @@ app.use("/api/projects/:id/documents", documentsRouter);
 app.use("/api/projects/:id/preferences", preferenceRouter);
 app.use("/api/projects/:id/discussions", discussionsRouter);
 app.use("/api/history", historyRouter);
+// ...
+app.use("/api/ai", aiRoutes);
 
 app.use(errorMiddleware);
 
