@@ -2,55 +2,45 @@ import { useState } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import type { FormikHelpers } from "formik";
 import * as Yup from "yup";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { isAxiosError } from "axios";
 import { useAuth } from "../context/useAuth";
-import { AuthCard } from "../components/AuthCard";
 
-interface RegisterFormValues {
-  name: string;
-  email: string;
-  employeeId: string;
-  password: string;
-  confirmPassword: string;
-}
-
-const registerSchema = Yup.object({
-  name: Yup.string().trim().min(2, "Name is too short").required("Name is required"),
-  email: Yup.string().email("Enter a valid email").required("Email is required"),
-  employeeId: Yup.string().trim().required("Employee ID is required"),
-  password: Yup.string().min(6, "Password must be at least 6 characters").required("Password is required"),
-  confirmPassword: Yup.string()
-    .oneOf([Yup.ref("password")], "Passwords do not match")
-    .required("Please confirm your password"),
+const registerSchema = Yup.object().shape({
+  name: Yup.string().required("Name is required"),
+  email: Yup.string().email("Invalid email").required("Email is required"),
+  employeeId: Yup.string().required("Employee ID is required"),
+  password: Yup.string().min(7, "Must be at least 7 characters").required("Password is required"),
+  skills: Yup.string(),
 });
 
-const fieldClass =
-  "mt-1 block w-full rounded-md border border-[#e3e8ee] bg-white px-3 py-2 text-sm text-[#0f1419] placeholder-[#9ca3af] focus:border-[#20beff] focus:outline-none focus:ring-1 focus:ring-[#20beff]";
+type FormValues = Yup.InferType<typeof registerSchema>;
 
 export default function Register() {
   const { register } = useAuth();
   const navigate = useNavigate();
   const [serverError, setServerError] = useState("");
 
-  const handleSubmit = async (
-    values: RegisterFormValues,
-    { setSubmitting }: FormikHelpers<RegisterFormValues>
-  ) => {
+  const handleSubmit = async (values: FormValues, { setSubmitting }: FormikHelpers<FormValues>) => {
     setServerError("");
     try {
+      const skillsArray = values.skills
+        ? values.skills.split(",").map((s) => s.trim()).filter(Boolean)
+        : [];
+      
       await register({
         name: values.name,
         email: values.email,
         employeeId: values.employeeId,
         password: values.password,
+        skills: skillsArray,
       });
       navigate("/dashboard");
     } catch (err) {
       if (isAxiosError(err)) {
-        setServerError(err.response?.data?.message ?? "Registration failed. Please try again.");
+        setServerError(err.response?.data?.message || "Registration failed");
       } else {
-        setServerError("An unexpected error occurred.");
+        setServerError("An unexpected error occurred");
       }
     } finally {
       setSubmitting(false);
@@ -58,62 +48,99 @@ export default function Register() {
   };
 
   return (
-    <AuthCard
-      title="Create your account"
-      footer={
-        <>
+    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 tracking-tight">
+          Create Staffwise Account
+        </h2>
+        <p className="mt-2 text-center text-sm text-gray-600">
           Already have an account?{" "}
-          <Link to="/login" className="font-medium text-[#20beff] hover:underline">
-            Log in
+          <Link to="/login" className="font-medium text-blue-600 hover:text-blue-500">
+            Sign in
           </Link>
-        </>
-      }
-    >
-      {serverError && (
-        <p role="alert" className="mb-4 rounded-md bg-red-50 px-3 py-2 text-sm text-red-600">
-          {serverError}
         </p>
-      )}
-      <Formik
-        initialValues={{ name: "", email: "", employeeId: "", password: "", confirmPassword: "" }}
-        validationSchema={registerSchema}
-        onSubmit={handleSubmit}
-      >
-        {({ isSubmitting }) => (
-          <Form className="flex flex-col gap-1" noValidate>
-            <label htmlFor="name" className="mt-3 text-sm font-medium text-[#0f1419]">Full name</label>
-            <Field id="name" name="name" type="text" autoComplete="name" className={fieldClass} placeholder="Jane Smith" />
-            <ErrorMessage name="name" component="div" className="text-xs text-red-500" />
+      </div>
 
-            <label htmlFor="email" className="mt-3 text-sm font-medium text-[#0f1419]">Email</label>
-            <Field id="email" name="email" type="email" autoComplete="email" className={fieldClass} placeholder="jane@company.com" />
-            <ErrorMessage name="email" component="div" className="text-xs text-red-500" />
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10 border border-gray-100">
+          <Formik
+            initialValues={{ name: "", email: "", employeeId: "", password: "", skills: "" }}
+            validationSchema={registerSchema}
+            onSubmit={(values, { setSubmitting }) => handleSubmit(values, { setSubmitting } as FormikHelpers<FormValues>)}
+          >
+            {({ isSubmitting }) => (
+              <Form className="space-y-5">
+                {serverError && (
+                  <div className="bg-red-50 border-l-4 border-red-400 p-4">
+                    <p className="text-sm text-red-700">{serverError}</p>
+                  </div>
+                )}
 
-            <label htmlFor="employeeId" className="mt-3 text-sm font-medium text-[#0f1419]">
-              Employee ID
-            </label>
-            <Field id="employeeId" name="employeeId" type="text" className={fieldClass} placeholder="e.g. 1433" />
-            <ErrorMessage name="employeeId" component="div" className="text-xs text-red-500" />
-            <p className="text-xs text-[#9ca3af]">Ask your admin if you don't have one yet.</p>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Full Name</label>
+                  <Field
+                    name="name"
+                    type="text"
+                    className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  />
+                  <ErrorMessage name="name" component="p" className="mt-1 text-xs text-red-600" />
+                </div>
 
-            <label htmlFor="password" className="mt-3 text-sm font-medium text-[#0f1419]">Password</label>
-            <Field id="password" name="password" type="password" autoComplete="new-password" className={fieldClass} placeholder="At least 6 characters" />
-            <ErrorMessage name="password" component="div" className="text-xs text-red-500" />
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Email Address</label>
+                  <Field
+                    name="email"
+                    type="email"
+                    className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  />
+                  <ErrorMessage name="email" component="p" className="mt-1 text-xs text-red-600" />
+                </div>
 
-            <label htmlFor="confirmPassword" className="mt-3 text-sm font-medium text-[#0f1419]">Confirm password</label>
-            <Field id="confirmPassword" name="confirmPassword" type="password" autoComplete="new-password" className={fieldClass} />
-            <ErrorMessage name="confirmPassword" component="div" className="text-xs text-red-500" />
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Employee ID</label>
+                  <Field
+                    name="employeeId"
+                    type="text"
+                    className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  />
+                  <ErrorMessage name="employeeId" component="p" className="mt-1 text-xs text-red-600" />
+                </div>
 
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="mt-6 rounded-md bg-[#20beff] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#0f9fdb] disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {isSubmitting ? "Creating account…" : "Create account"}
-            </button>
-          </Form>
-        )}
-      </Formik>
-    </AuthCard>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Password</label>
+                  <Field
+                    name="password"
+                    type="password"
+                    className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  />
+                  <ErrorMessage name="password" component="p" className="mt-1 text-xs text-red-600" />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Skills (comma-separated)</label>
+                  <Field
+                    name="skills"
+                    type="text"
+                    placeholder="e.g. React, Node.js, Design"
+                    className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  />
+                  <ErrorMessage name="skills" component="p" className="mt-1 text-xs text-red-600" />
+                </div>
+
+                <div className="pt-2">
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+                  >
+                    {isSubmitting ? "Creating account..." : "Sign up"}
+                  </button>
+                </div>
+              </Form>
+            )}
+          </Formik>
+        </div>
+      </div>
+    </div>
   );
 }

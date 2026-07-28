@@ -1,23 +1,24 @@
 import { useState, useRef, useEffect } from "react";
-import { useAuth } from "../context/useAuth";
-import api from "../services/api";
-import { PageHeader } from "../components/ui/PageHeader";
-import { Spinner } from "../components/ui/Spinner";
+import { useAuth } from "../../../context/useAuth";
+import api from "../../../services/api";
+import { Spinner } from "../../../components/ui/Spinner";
 
 interface Message {
   role: "user" | "assistant";
   content: string;
 }
 
-export default function AIAssistant() {
+interface Props {
+  projectId: string;
+  projectTitle: string;
+}
+
+export default function AITab({ projectId, projectTitle }: Props) {
   const { user } = useAuth();
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
-      content:
-        user?.role === "admin"
-          ? "Hi! I can help you with staffing suggestions — ask me who would be a good fit for a project, or for insights on your team's skills and history."
-          : "Hi! I can answer questions about your projects, team assignments, and work history. What would you like to know?",
+      content: `Hi! I'm the AI Assistant for **${projectTitle}**. You can ask me about this project's details, requirements, or anything else related to it.`,
     },
   ]);
   const [input, setInput] = useState("");
@@ -37,7 +38,9 @@ export default function AIAssistant() {
     setLoading(true);
 
     try {
-      const { data } = await api.post<{ response: string }>("ai/query", { query: q });
+      const { data } = await api.post<{ response: string }>("ai/query", {
+        query: `In the context of the project with ID ${projectId} (${projectTitle}): ${q}`,
+      });
       setMessages((prev) => [...prev, { role: "assistant", content: data.response }]);
     } catch (err: unknown) {
       const msg =
@@ -57,18 +60,9 @@ export default function AIAssistant() {
   };
 
   return (
-    <div className="flex flex-col h-screen max-h-screen p-6 max-w-3xl mx-auto">
-      <PageHeader
-        title="AI Assistant"
-        subtitle={
-          user?.role === "admin"
-            ? "Staffing suggestions and team insights"
-            : "Ask about your projects and history"
-        }
-      />
-
+    <div className="flex flex-col h-full border border-gray-200 rounded-xl bg-gray-50 overflow-hidden">
       {/* Chat window */}
-      <div className="flex-1 overflow-y-auto space-y-4 mb-4 pr-1">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.map((m, i) => (
           <div
             key={i}
@@ -110,13 +104,13 @@ export default function AIAssistant() {
       </div>
 
       {/* Input */}
-      <div className="flex gap-2 border-t border-gray-200 pt-4">
+      <div className="flex gap-2 border-t border-gray-200 p-4 bg-white">
         <textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
           rows={2}
-          placeholder="Ask something… (Enter to send, Shift+Enter for new line)"
+          placeholder="Ask something about this project…"
           className="flex-1 resize-none rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600"
         />
         <button

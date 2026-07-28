@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/useAuth";
 import { getAllProjects } from "../services/project.service";
@@ -21,39 +21,34 @@ export default function Dashboard() {
   }, []);
 
   const unassigned = projects.filter((p) => !p.assignedTeams || p.assignedTeams.length === 0);
-  const recent = projects.slice(0, 6);
+  
+  const employeeProjects = useMemo(() => {
+    if (user?.role === "admin") return projects;
+    return projects.filter((p) =>
+      p.assignedTeams?.some((team: any) =>
+        team.members?.some((m: any) =>
+          m.toString() === user?._id || (m._id && m._id.toString() === user?._id)
+        )
+      )
+    );
+  }, [projects, user]);
 
-  const [stats, setStats] = useState({
-    total: 0,
-    unassigned: 0,
-    active: 0,
-    completed: 0,
-    assigned: 0,
-    upcoming: 0,
-  });
+  const relevantProjects = user?.role === "admin" ? projects : employeeProjects;
+  const recent = relevantProjects.slice(0, 6);
 
-  useEffect(() => {
-    let mounted = true;
-    const now = Date.now(); // allowed inside effect
-    const newStats = {
-      total: projects.length,
+  const stats = useMemo(() => {
+    const now = Date.now();
+    return {
+      total: projects.length, // Always show total system projects
       unassigned: unassigned.length,
-      active: projects.filter((p) => new Date(p.startDate).getTime() <= now && new Date(p.endDate).getTime() >= now).length,
-      completed: projects.filter((p) => new Date(p.endDate).getTime() < now).length,
-      assigned: projects.filter((p) => p.assignedTeams?.length > 0).length,
-      upcoming: projects.filter((p) => new Date(p.startDate).getTime() > now).length,
+      active: relevantProjects.filter((p) => new Date(p.startDate).getTime() <= now && new Date(p.endDate).getTime() >= now).length,
+      completed: relevantProjects.filter((p) => new Date(p.endDate).getTime() < now).length,
+      assigned: user?.role === "admin"
+        ? relevantProjects.filter((p) => p.assignedTeams?.length > 0).length
+        : relevantProjects.length,
+      upcoming: relevantProjects.filter((p) => new Date(p.startDate).getTime() > now).length,
     };
-
-    // schedule update asynchronously to avoid cascading synchronous renders
-    const timer = setTimeout(() => {
-      if (mounted) setStats(newStats);
-    }, 0);
-
-    return () => {
-      mounted = false;
-      clearTimeout(timer);
-    };
-  }, [projects, unassigned]);
+  }, [relevantProjects, projects, unassigned, user]);
 
   if (loading) return <PageSpinner />;
 
@@ -66,7 +61,7 @@ export default function Dashboard() {
           user?.role === "admin" ? (
             <Link
               to="/admin/projects/new"
-              className="inline-flex items-center gap-1.5 rounded-lg bg-[#20beff] px-4 py-2 text-sm font-semibold text-white hover:bg-[#0f9fdb] transition-colors"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
             >
               + New project
             </Link>
@@ -96,10 +91,10 @@ export default function Dashboard() {
       {user?.role === "admin" && unassigned.length > 0 && (
         <section className="mb-8">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-sm font-semibold text-[#0f1419] uppercase tracking-wide">
+            <h2 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">
               ⚠ Awaiting team assignment
             </h2>
-            <Link to="/projects" className="text-xs text-[#20beff] hover:underline">View all →</Link>
+            <Link to="/projects" className="text-xs text-blue-600 hover:underline">View all →</Link>
           </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {unassigned.slice(0, 3).map((p) => (
@@ -112,10 +107,10 @@ export default function Dashboard() {
       {/* Recent projects */}
       <section>
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-sm font-semibold text-[#0f1419] uppercase tracking-wide">
+          <h2 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">
             {user?.role === "admin" ? "All projects" : "Your projects"}
           </h2>
-          <Link to="/projects" className="text-xs text-[#20beff] hover:underline">View all →</Link>
+          <Link to="/projects" className="text-xs text-blue-600 hover:underline">View all →</Link>
         </div>
         {recent.length === 0 ? (
           <EmptyState title="No projects yet" description="Projects will appear here once they're created." />
@@ -133,9 +128,9 @@ export default function Dashboard() {
 
 function StatCard({ label, value, highlight }: { label: string; value: number; highlight?: boolean }) {
   return (
-    <div className={`rounded-xl border p-4 ${highlight ? "border-amber-200 bg-amber-50" : "border-[#e3e8ee] bg-white"}`}>
-      <p className="text-2xl font-bold text-[#0f1419]">{value}</p>
-      <p className="text-xs text-[#9ca3af] mt-0.5">{label}</p>
+    <div className={`rounded-xl border p-4 ${highlight ? "border-amber-200 bg-amber-50" : "border-gray-200 bg-white"}`}>
+      <p className="text-2xl font-bold text-gray-900">{value}</p>
+      <p className="text-xs text-gray-500 mt-0.5">{label}</p>
     </div>
   );
 }

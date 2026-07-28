@@ -16,7 +16,7 @@ export interface IPreference {
 
 export const submitPreference = async (projectId: string, data: IPreferencePayload) => {
   const response = await api.post<{ message: string; preference: IPreference }>(
-    `projects/${projectId}/preferences`,
+    `projects/${projectId}/preference`,
     data
   );
   return response.data.preference;

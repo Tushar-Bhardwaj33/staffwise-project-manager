@@ -17,7 +17,7 @@ export function ProjectCard({ project, showManage = false }: ProjectCardProps) {
   const needsTeam = isAdmin && teamCount === 0;
 
   return (
-    <div className="group bg-white border border-[#e3e8ee] rounded-xl p-5 hover:shadow-md transition-shadow flex flex-col gap-3">
+    <div className="group bg-white border border-gray-200 rounded-xl p-5 hover:shadow-md transition-shadow flex flex-col gap-3">
       {/* Header */}
       <div className="flex items-start justify-between gap-2">
         <ProjectTypeBadge type={project.type} />
@@ -27,7 +27,7 @@ export function ProjectCard({ project, showManage = false }: ProjectCardProps) {
           </span>
         )}
         {teamCount > 0 && (
-          <span className="text-xs text-[#9ca3af]">
+          <span className="text-xs text-gray-500">
             {teamCount} team{teamCount !== 1 ? "s" : ""}
           </span>
         )}
@@ -37,11 +37,11 @@ export function ProjectCard({ project, showManage = false }: ProjectCardProps) {
       <div>
         <Link
           to={`/projects/${project._id}`}
-          className="font-semibold text-[#0f1419] hover:text-[#0284c7] transition-colors line-clamp-2 text-base leading-snug"
+          className="font-semibold text-gray-900 hover:text-blue-600 transition-colors line-clamp-2 text-base leading-snug"
         >
           {project.title}
         </Link>
-        <p className="mt-1 text-sm text-[#5b6b79] line-clamp-2">{project.description}</p>
+        <p className="mt-1 text-sm text-gray-600 line-clamp-2">{project.description}</p>
       </div>
 
       {/* Skills */}
@@ -51,7 +51,7 @@ export function ProjectCard({ project, showManage = false }: ProjectCardProps) {
             <SkillTag key={s} skill={s} />
           ))}
           {project.requiredSkills.length > 4 && (
-            <span className="text-xs text-[#9ca3af]">+{project.requiredSkills.length - 4} more</span>
+            <span className="text-xs text-gray-500">+{project.requiredSkills.length - 4} more</span>
           )}
         </div>
       )}
@@ -65,14 +65,14 @@ export function ProjectCard({ project, showManage = false }: ProjectCardProps) {
       <div className="flex items-center gap-2 pt-1 mt-auto">
         <Link
           to={`/projects/${project._id}`}
-          className="text-sm font-medium text-[#0284c7] hover:underline"
+          className="text-sm font-medium text-blue-600 hover:underline"
         >
           View details →
         </Link>
         {showManage && isAdmin && (
           <Link
             to={`/admin/projects/${project._id}/manage`}
-            className="ml-auto text-xs font-medium text-[#9ca3af] hover:text-[#0f1419] border border-[#e3e8ee] rounded-lg px-2.5 py-1 hover:border-[#0284c7] transition-colors"
+            className="ml-auto text-xs font-medium text-gray-500 hover:text-gray-900 border border-gray-200 rounded-lg px-2.5 py-1 hover:border-blue-600 transition-colors"
           >
             Manage
           </Link>

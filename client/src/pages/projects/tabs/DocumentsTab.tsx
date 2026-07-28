@@ -67,26 +67,28 @@ export default function DocumentsTab({ projectId }: Props) {
   return (
     <div className="space-y-5">
       {/* Upload */}
-      <div className="bg-white border border-[#e3e8ee] rounded-xl p-5">
-        <h2 className="text-sm font-semibold text-[#0f1419] mb-3">Upload document</h2>
-        <div className="flex flex-col sm:flex-row gap-2">
-          <input
-            type="text"
-            value={titleInput}
-            onChange={(e) => setTitleInput(e.target.value)}
-            placeholder="Document title (optional)"
-            className="flex-1 rounded-lg border border-[#e3e8ee] px-3 py-2 text-sm focus:border-[#20beff] focus:outline-none"
-          />
-          <label className={`inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium cursor-pointer transition-colors ${
-            uploading
-              ? "bg-[#e3e8ee] text-[#9ca3af] cursor-not-allowed"
-              : "bg-[#20beff] text-white hover:bg-[#0f9fdb]"
-          }`}>
-            {uploading ? <><Spinner size="sm" /> Uploading…</> : "Choose file"}
-            <input ref={fileRef} type="file" className="hidden" onChange={handleUpload} disabled={uploading} />
-          </label>
+      {user?.role === "admin" && (
+        <div className="bg-white border border-gray-200 rounded-xl p-5">
+          <h2 className="text-sm font-semibold text-gray-900 mb-3">Upload document</h2>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <input
+              type="text"
+              value={titleInput}
+              onChange={(e) => setTitleInput(e.target.value)}
+              placeholder="Document title (optional)"
+              className="flex-1 rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-600 focus:outline-none"
+            />
+            <label className={`inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium cursor-pointer transition-colors ${
+              uploading
+                ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                : "bg-blue-600 text-white hover:bg-blue-700"
+            }`}>
+              {uploading ? <><Spinner size="sm" /> Uploading…</> : "Choose file"}
+              <input ref={fileRef} type="file" className="hidden" onChange={handleUpload} disabled={uploading} />
+            </label>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* List */}
       {loading ? (
@@ -94,27 +96,27 @@ export default function DocumentsTab({ projectId }: Props) {
       ) : docs.length === 0 ? (
         <EmptyState title="No documents yet" description="Upload the first document for this project." />
       ) : (
-        <div className="bg-white border border-[#e3e8ee] rounded-xl divide-y divide-[#e3e8ee]">
+        <div className="bg-white border border-gray-200 rounded-xl divide-y divide-gray-200">
           {docs.map((doc) => (
-            <div key={doc._id} className="flex items-center gap-3 px-5 py-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#f0f4f8] text-[#5b6b79] text-xs font-bold uppercase shrink-0">
+            <div key={doc._id} className="flex items-center gap-3 px-5 py-3 hover:bg-gray-50 transition-colors">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-100 text-gray-500 text-xs font-bold uppercase shrink-0">
                 {doc.filename.split(".").pop()}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-[#0f1419] truncate">{doc.title}</p>
-                <p className="text-xs text-[#9ca3af]">{doc.filename} · {formatBytes(doc.size)}</p>
+                <p className="text-sm font-medium text-gray-900 truncate">{doc.title}</p>
+                <p className="text-xs text-gray-500">{doc.filename} · {formatBytes(doc.size)}</p>
               </div>
               <div className="flex gap-2 shrink-0">
                 <button
                   onClick={() => handleDownload(doc._id, doc.filename)}
-                  className="text-xs font-medium text-[#20beff] hover:underline"
+                  className="text-xs font-medium text-blue-600 hover:underline"
                 >
                   Download
                 </button>
                 {(user?.role === "admin" || doc.uploadedBy === user?._id) && (
                   <button
                     onClick={() => handleDelete(doc._id)}
-                    className="text-xs font-medium text-red-400 hover:text-red-600"
+                    className="text-xs font-medium text-red-500 hover:text-red-700"
                   >
                     Delete
                   </button>

@@ -36,20 +36,28 @@ export default function MyProjects() {
     { key: "history", label: "Project history" },
   ] as const;
 
+  const myAssignedProjects = allProjects.filter((p) => {
+    return p.assignedTeams?.some((team: any) =>
+      team.members?.some((m: any) =>
+        m.toString() === user?._id || (m._id && m._id.toString() === user?._id)
+      )
+    );
+  });
+
   return (
     <div className="p-6 max-w-6xl mx-auto">
       <PageHeader title="My Projects" subtitle="Your assignments and history" />
 
       {/* Tabs */}
-      <div className="flex gap-1 border-b border-[#e3e8ee] mb-6">
+      <div className="flex gap-1 border-b border-gray-200 mb-6">
         {tabs.map((t) => (
           <button
             key={t.key}
             onClick={() => setTab(t.key)}
             className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
               tab === t.key
-                ? "border-[#20beff] text-[#0284c7]"
-                : "border-transparent text-[#9ca3af] hover:text-[#0f1419]"
+                ? "border-blue-600 text-blue-600"
+                : "border-transparent text-gray-500 hover:text-gray-900"
             }`}
           >
             {t.label}
@@ -59,19 +67,19 @@ export default function MyProjects() {
 
       {tab === "assigned" && (
         <>
-          {allProjects.length === 0 ? (
+          {myAssignedProjects.length === 0 ? (
             <EmptyState
               title="No active projects"
               description="You haven't been assigned to any project teams yet."
               action={
-                <Link to="/projects" className="text-sm text-[#20beff] hover:underline">
+                <Link to="/projects" className="text-sm text-blue-600 hover:underline">
                   Browse open projects →
                 </Link>
               }
             />
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {allProjects.map((p) => (
+              {myAssignedProjects.map((p) => (
                 <ProjectCard key={p._id} project={p} />
               ))}
             </div>

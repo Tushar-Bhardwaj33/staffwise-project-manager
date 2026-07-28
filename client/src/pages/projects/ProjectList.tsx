@@ -47,7 +47,7 @@ export default function ProjectList() {
           user?.role === "admin" ? (
             <Link
               to="/admin/projects/new"
-              className="inline-flex items-center gap-1.5 rounded-lg bg-[#20beff] px-4 py-2 text-sm font-semibold text-white hover:bg-[#0f9fdb] transition-colors"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
             >
               + New project
             </Link>
@@ -62,17 +62,17 @@ export default function ProjectList() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search by title…"
-          className="flex-1 rounded-lg border border-[#e3e8ee] bg-white px-4 py-2 text-sm text-[#0f1419] placeholder-[#9ca3af] focus:border-[#20beff] focus:outline-none focus:ring-1 focus:ring-[#20beff]"
+          className="flex-1 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
         />
         <div className="flex gap-1.5 flex-wrap">
           {TYPE_FILTERS.map((f) => (
             <button
               key={f.value}
               onClick={() => setTypeFilter(f.value)}
-              className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+              className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
                 typeFilter === f.value
-                  ? "bg-[#20beff] text-white"
-                  : "bg-white border border-[#e3e8ee] text-[#5b6b79] hover:border-[#20beff] hover:text-[#20beff]"
+                  ? "bg-gray-900 text-white"
+                  : "bg-white border border-gray-200 text-gray-700 hover:border-gray-900 hover:text-gray-900"
               }`}
             >
               {f.label}
@@ -89,7 +89,7 @@ export default function ProjectList() {
             search || typeFilter !== "all" ? (
               <button
                 onClick={() => { setSearch(""); setTypeFilter("all"); }}
-                className="text-sm text-[#20beff] hover:underline"
+                className="text-sm text-blue-600 hover:underline"
               >
                 Clear filters
               </button>

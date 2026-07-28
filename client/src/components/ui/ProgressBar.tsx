@@ -13,7 +13,7 @@ export function ProgressBar({ startDate, endDate }: ProgressBarProps) {
     return () => clearInterval(interval);
   }, []);
 
-  const { start, end, pct, status } = useMemo(() => {
+  const { pct, status } = useMemo(() => {
     const start = new Date(startDate).getTime();
     const end = new Date(endDate).getTime();
     const total = Math.max(1, end - start);
@@ -30,7 +30,7 @@ export function ProgressBar({ startDate, endDate }: ProgressBarProps) {
       pct = Math.min(100, Math.round(((now - start) / total) * 100));
     }
 
-    return { start, end, pct, status };
+    return { pct, status };
   }, [startDate, endDate, now]);
 
   const barColor =
@@ -38,11 +38,11 @@ export function ProgressBar({ startDate, endDate }: ProgressBarProps) {
       ? "bg-emerald-500"
       : status === "upcoming"
       ? "bg-slate-300"
-      : "bg-[#20beff]";
+      : "bg-blue-600";
 
   return (
     <div className="space-y-1">
-      <div className="flex justify-between text-xs text-[#9ca3af]">
+      <div className="flex justify-between text-xs text-gray-500">
         <span>
           {new Date(startDate).toLocaleDateString("en-US", {
             month: "short",
@@ -58,13 +58,13 @@ export function ProgressBar({ startDate, endDate }: ProgressBarProps) {
           })}
         </span>
       </div>
-      <div className="h-1.5 w-full overflow-hidden rounded-full bg-[#e3e8ee]">
+      <div className="h-1.5 w-full overflow-hidden rounded-full bg-gray-200">
         <div
           className={`h-full rounded-full transition-all ${barColor}`}
           style={{ width: `${pct}%` }}
         />
       </div>
-      <div className="text-right text-xs text-[#9ca3af]">
+      <div className="text-right text-xs text-gray-500">
         {status === "completed"
           ? "Completed"
           : status === "upcoming"

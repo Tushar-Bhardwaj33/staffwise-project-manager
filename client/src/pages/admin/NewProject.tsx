@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { createProject } from "../../services/project.service";
 import { PageHeader } from "../../components/ui/PageHeader";
 import { SkillTag } from "../../components/ui/SkillTag";
+import { useAuth } from "../../context/useAuth";
 
 interface NewProjectValues {
   title: string;
@@ -33,6 +34,8 @@ const fieldClass =
   "block w-full rounded-lg border border-[#e3e8ee] bg-white px-3 py-2 text-sm text-[#0f1419] placeholder-[#9ca3af] focus:border-[#20beff] focus:outline-none focus:ring-1 focus:ring-[#20beff]";
 
 export default function NewProject() {
+  const { user } = useAuth();
+  const id = user?._id;
   const navigate = useNavigate();
   const [skills, setSkills] = useState<string[]>([]);
   const [serverError, setServerError] = useState("");
@@ -57,7 +60,7 @@ export default function NewProject() {
         startDate: values.startDate,
         endDate: values.endDate,
         assignedTeams: [],
-        createdBy: "",
+        createdBy: id as string,
       });
       navigate(`/projects/${project._id}`);
     } catch {

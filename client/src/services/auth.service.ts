@@ -6,6 +6,7 @@ export interface IRegisterPayload {
   email: string;
   password: string;
   employeeId: string;
+  skills?: string[];
 }
 
 interface IAuthResponse {

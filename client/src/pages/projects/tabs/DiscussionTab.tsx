@@ -141,11 +141,11 @@ export default function DiscussionTab({ projectId }: Props) {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search topics…"
-          className="flex-1 rounded-lg border border-[#e3e8ee] px-3 py-2 text-sm focus:border-[#20beff] focus:outline-none"
+          className="flex-1 rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-600 focus:outline-none"
         />
         <button
           onClick={() => setShowForm((v) => !v)}
-          className="rounded-lg bg-[#20beff] px-4 py-2 text-sm font-semibold text-white hover:bg-[#0f9fdb] transition-colors"
+          className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
         >
           + New topic
         </button>
@@ -153,13 +153,13 @@ export default function DiscussionTab({ projectId }: Props) {
 
       {/* New topic form */}
       {showForm && (
-        <form onSubmit={handleCreateTopic} className="bg-white border border-[#20beff] rounded-xl p-4 space-y-3">
+        <form onSubmit={handleCreateTopic} className="bg-white border border-blue-600 rounded-xl p-4 space-y-3">
           <input
             value={newTitle}
             onChange={(e) => setNewTitle(e.target.value)}
             placeholder="Topic title"
             required
-            className="w-full rounded-lg border border-[#e3e8ee] px-3 py-2 text-sm focus:border-[#20beff] focus:outline-none"
+            className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-600 focus:outline-none"
           />
           <textarea
             value={newContent}
@@ -167,17 +167,17 @@ export default function DiscussionTab({ projectId }: Props) {
             placeholder="What would you like to discuss?"
             required
             rows={3}
-            className="w-full rounded-lg border border-[#e3e8ee] px-3 py-2 text-sm focus:border-[#20beff] focus:outline-none resize-none"
+            className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-600 focus:outline-none resize-none"
           />
           <div className="flex gap-2">
             <button
               type="submit"
               disabled={creating}
-              className="rounded-lg bg-[#20beff] px-4 py-2 text-sm font-semibold text-white hover:bg-[#0f9fdb] disabled:opacity-60"
+              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
             >
               {creating ? "Posting…" : "Post topic"}
             </button>
-            <button type="button" onClick={() => setShowForm(false)} className="rounded-lg border border-[#e3e8ee] px-4 py-2 text-sm text-[#5b6b79]">
+            <button type="button" onClick={() => setShowForm(false)} className="rounded-lg border border-gray-200 px-4 py-2 text-sm text-gray-500">
               Cancel
             </button>
           </div>
@@ -192,7 +192,7 @@ export default function DiscussionTab({ projectId }: Props) {
         <>
           {pinned.length > 0 && (
             <div className="space-y-2">
-              <p className="text-xs font-semibold text-[#9ca3af] uppercase tracking-wide">📌 Pinned</p>
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">📌 Pinned</p>
               {pinned.map((t) => (
                 <TopicCard key={t._id} topic={t} projectId={projectId} user={user}
                   expanded={expandedTopic === t._id} comments={topicComments[t._id] ?? []}
@@ -208,7 +208,7 @@ export default function DiscussionTab({ projectId }: Props) {
             </div>
           )}
           {filtered.length === 0 && search && (
-            <p className="text-sm text-[#9ca3af] text-center py-6">No topics matching "{search}"</p>
+            <p className="text-sm text-gray-400 text-center py-6">No topics matching "{search}"</p>
           )}
           {filtered.map((t) => (
             <TopicCard key={t._id} topic={t} projectId={projectId} user={user}
@@ -255,13 +255,13 @@ function TopicCard({
   const upvoted = user ? topic.upvotes.includes(user._id) : false;
 
   return (
-    <div className={`bg-white border rounded-xl overflow-hidden transition-all ${topic.isPinned ? "border-amber-300" : "border-[#e3e8ee]"}`}>
+    <div className={`bg-white border rounded-xl overflow-hidden transition-all ${topic.isPinned ? "border-amber-300" : "border-gray-200"}`}>
       <div className="p-4">
         <div className="flex items-start gap-3">
           <button
             onClick={onUpvote}
             className={`flex flex-col items-center text-xs rounded-lg px-2 py-1.5 min-w-[40px] transition-colors ${
-              upvoted ? "bg-[#e8f5fe] text-[#0284c7]" : "bg-[#f7f9fb] text-[#9ca3af] hover:text-[#0284c7]"
+              upvoted ? "bg-blue-50 text-blue-600" : "bg-gray-50 text-gray-400 hover:text-blue-600"
             }`}
           >
             ▲
@@ -269,14 +269,14 @@ function TopicCard({
           </button>
           <div className="flex-1 min-w-0">
             <button onClick={onExpand} className="text-left w-full">
-              <h3 className="font-semibold text-[#0f1419] hover:text-[#0284c7] transition-colors">
+              <h3 className="font-semibold text-gray-900 hover:text-blue-600 transition-colors">
                 {topic.title}
               </h3>
-              <p className="text-sm text-[#5b6b79] mt-1 line-clamp-2">{topic.content}</p>
+              <p className="text-sm text-gray-500 mt-1 line-clamp-2">{topic.content}</p>
             </button>
-            <div className="flex items-center gap-3 mt-2 text-xs text-[#9ca3af]">
+            <div className="flex items-center gap-3 mt-2 text-xs text-gray-400">
               <span>{new Date(topic.createdAt).toLocaleDateString()}</span>
-              <button onClick={onExpand} className="hover:text-[#0284c7]">
+              <button onClick={onExpand} className="hover:text-blue-600">
                 {comments.length} repl{comments.length !== 1 ? "ies" : "y"}
               </button>
               {user?.role === "admin" && (
@@ -293,7 +293,7 @@ function TopicCard({
       </div>
 
       {expanded && (
-        <div className="border-t border-[#e3e8ee] bg-[#f7f9fb] px-4 py-3 space-y-3">
+        <div className="border-t border-gray-200 bg-gray-50 px-4 py-3 space-y-3">
           {comments.map((c) => (
             <CommentRow key={c._id} comment={c} user={user}
               onUpvote={() => onCommentUpvote(c._id)}
@@ -306,12 +306,12 @@ function TopicCard({
               onChange={(e) => onReplyChange(e.target.value)}
               placeholder="Write a reply…"
               rows={2}
-              className="flex-1 resize-none rounded-lg border border-[#e3e8ee] bg-white px-3 py-2 text-sm focus:border-[#20beff] focus:outline-none"
+              className="flex-1 resize-none rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm focus:border-blue-600 focus:outline-none"
             />
             <button
               onClick={onReplySubmit}
               disabled={!replyContent.trim() || submittingReply}
-              className="self-end rounded-lg bg-[#20beff] px-3 py-2 text-sm font-medium text-white hover:bg-[#0f9fdb] disabled:opacity-40"
+              className="self-end rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-40"
             >
               {submittingReply ? "…" : "Reply"}
             </button>
@@ -333,17 +333,17 @@ function CommentRow({ comment, user, onUpvote, onDelete }: {
 
   return (
     <div className="flex gap-2">
-      <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#e3e8ee] text-xs font-bold text-[#5b6b79]">
+      <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gray-200 text-xs font-bold text-gray-500">
         {authorName.charAt(0).toUpperCase()}
       </div>
       <div className="flex-1">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-[#0f1419]">{authorName}</span>
-          <span className="text-xs text-[#9ca3af]">{new Date(comment.createdAt).toLocaleDateString()}</span>
+          <span className="text-xs font-semibold text-gray-900">{authorName}</span>
+          <span className="text-xs text-gray-400">{new Date(comment.createdAt).toLocaleDateString()}</span>
         </div>
-        <p className="text-sm text-[#5b6b79] mt-0.5">{comment.content}</p>
-        <div className="flex items-center gap-3 mt-1 text-xs text-[#9ca3af]">
-          <button onClick={onUpvote} className={`flex items-center gap-1 ${upvoted ? "text-[#0284c7]" : "hover:text-[#0284c7]"}`}>
+        <p className="text-sm text-gray-500 mt-0.5">{comment.content}</p>
+        <div className="flex items-center gap-3 mt-1 text-xs text-gray-400">
+          <button onClick={onUpvote} className={`flex items-center gap-1 ${upvoted ? "text-blue-600" : "hover:text-blue-600"}`}>
             ▲ {comment.upvotes.length}
           </button>
           {(user?.role === "admin" || (typeof comment.author === "object" && (comment.author as { _id: string })._id === user?._id)) && (

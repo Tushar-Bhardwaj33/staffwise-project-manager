@@ -1,6 +1,6 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { ProtectedRoute } from "./components/ProtectedRoute";
-import { Layout } from "./components/Layout";
+import { AppLayout } from "./components/layout/AppLayout";
 
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -28,7 +28,7 @@ export default function App() {
       <Route
         element={
           <ProtectedRoute>
-            <Layout />
+            <AppLayout />
           </ProtectedRoute>
         }
       >
