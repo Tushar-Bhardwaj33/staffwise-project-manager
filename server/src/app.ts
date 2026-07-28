@@ -14,11 +14,12 @@ import documentsRouter from "./routes/documents.routes.js";
 import discussionsRouter from "./routes/discussions.routes.js";
 import historyRouter from "./routes/history.routes.js";
 import preferenceRouter from "./routes/preference.routes.js";
-
+process.env.FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
+const FRONTEND_URL = process.env.FRONTEND_URL;
 const app = express();
 
 // app.use(cors({ origin: true, credentials: true }));
-app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+app.use(cors({ origin: FRONTEND_URL, credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
 
