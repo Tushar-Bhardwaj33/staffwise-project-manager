@@ -1,18 +1,37 @@
 import api from "./api";
-import type { IPreference } from "../types/preferences.type.js";
-import type { IProject } from "../types/project.type.js";
 
-interface IPreferenceResponse {
-  message: string;
-  preference: IPreference;
+export interface IPreferencePayload {
+  interest: "interested" | "not-interested";
+  reason?: string;
 }
 
-export const createPreference = async (preferenceData: Omit<IPreference, "_id" | "createdAt" | "__v">) => {
-  const response = await api.post<IPreferenceResponse>("project/preferences", preferenceData);
+export interface IPreference {
+  _id: string;
+  project: string;
+  employee: { _id: string; name: string; employeeId: string; skills: string[] };
+  interest: "interested" | "not-interested";
+  reason?: string;
+  createdAt: string;
+}
+
+export const submitPreference = async (projectId: string, data: IPreferencePayload) => {
+  const response = await api.post<{ message: string; preference: IPreference }>(
+    `projects/${projectId}/preference`,
+    data
+  );
   return response.data.preference;
-}
+};
 
-export const getPreferencesByProjectId = async (id: IProject["_id"]) => {
-  const response = await api.get<IPreferenceResponse>(`project/preferences/${id}`);
+export const getProjectPreferences = async (projectId: string) => {
+  const response = await api.get<{ preferences: IPreference[] }>(
+    `projects/${projectId}/preferences`
+  );
+  return response.data.preferences;
+};
+
+export const getMyPreference = async (projectId: string) => {
+  const response = await api.get<{ preference: IPreference | null }>(
+    `projects/${projectId}/preferences/mine`
+  );
   return response.data.preference;
-}
+};

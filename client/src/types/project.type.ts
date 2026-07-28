@@ -1,17 +1,18 @@
-import { Types } from "mongoose";
 import type { ITeam } from "./team.type.js";
 
+export type ProjectType = "personal" | "company" | "product" | "client";
+
 export interface IProject {
-  _id: Types.ObjectId;
+  _id: string;
   title: string;
   description: string;
-  type: "personal" | "company" | "client" | "internal";
+  type: ProjectType;
   requiredSkills: string[];
-  startDate: Date;
-  endDate: Date;
+  startDate: string;
+  endDate: string;
   assignedTeams: ITeam[];
-  createdBy: Types.ObjectId;
-  createdAt: Date;
-  updatedAt: Date;
-  _v: number;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
 }

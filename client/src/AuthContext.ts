@@ -1,6 +1,6 @@
 import { createContext } from "react";
-import type { IUser } from "../types/user.type";
-import type { IRegisterPayload } from "../services/auth.service";
+import type { IRegisterPayload } from "./services/auth.service";
+import type { IUser } from "./types/user.type";
 
 export interface AuthContextValue {
   user: IUser | null;

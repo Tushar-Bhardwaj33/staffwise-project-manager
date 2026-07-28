@@ -5,31 +5,7 @@ import { Types } from "mongoose";
 
 export const getAllProjects = async (req: Request, res: Response) => {
   try {
-    const isAdmin = req.user?.role === "admin";
-
-    if (isAdmin) {
-      const projects = await Project.find({}).populate("assignedTeams");
-      return res.status(200).json({ projects });
-    }
-
-    // Employee: "open" projects (no team assigned yet) + projects their own team is on
-    const userId = req.user?.id;
-    if (!userId) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
-
-    const myTeams = await Team.find({
-      members: [new Types.ObjectId(userId)],
-    } as any).select("_id");
-    const myTeamIds = myTeams.map((t) => t._id);
-
-    const projects = await Project.find({
-      $or: [
-        { assignedTeams: { $size: 0 } },
-        { assignedTeams: { $in: myTeamIds } },
-      ],
-    }).populate("assignedTeams");
-
+    const projects = await Project.find({}).populate("assignedTeams");
     res.status(200).json({ projects });
   } catch (error) {
     console.error("getAllProjects error:", error);

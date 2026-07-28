@@ -7,8 +7,8 @@ import { signToken } from "../utils/jwt.js";
 const COOKIE_OPTIONS = {
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
-  sameSite: "strict" as const,
-  maxAge: 24 * 60 * 60 * 1000, // 1 day
+  sameSite: process.env.NODE_ENV === "production" ? "none" as const : "lax" as const,
+  maxAge: 24 * 60 * 60 * 1000,
 };
 
 export const register = async (req: Request, res: Response) => {
