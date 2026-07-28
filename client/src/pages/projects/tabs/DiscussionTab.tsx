@@ -10,10 +10,14 @@ import {
   createComment,
   toggleCommentUpvote,
   deleteComment,
+  editTopic,
+  editComment,
 } from "../../../services/discussions.service";
 import type { ITopic, IComment, IThreadedComment } from "../../../types/discussion.type";
 import { Spinner } from "../../../components/ui/Spinner";
 import { EmptyState } from "../../../components/ui/EmptyState";
+import { ConfirmModal } from "../../../components/ui/ConfirmModal";
+import { toast } from "react-toastify";
 
 interface Props { projectId: string }
 
@@ -30,6 +34,8 @@ export default function DiscussionTab({ projectId }: Props) {
   const [topicComments, setTopicComments] = useState<Record<string, IThreadedComment[]>>({});
   const [replyContent, setReplyContent] = useState<Record<string, string>>({});
   const [submittingReply, setSubmittingReply] = useState<string | null>(null);
+  const [deleteTopicId, setDeleteTopicId] = useState<string | null>(null);
+  const [deleteCommentData, setDeleteCommentData] = useState<{ topicId: string; commentId: string } | null>(null);
 
   const fetchTopics = () =>
     listTopics(projectId)
@@ -81,11 +87,31 @@ export default function DiscussionTab({ projectId }: Props) {
     await fetchTopics();
   };
 
-  const handleDeleteTopic = async (topicId: string) => {
-    if (!confirm("Delete this topic?")) return;
-    await deleteTopic(projectId, topicId);
-    setTopics((prev) => prev.filter((t) => t._id !== topicId));
-    if (expandedTopic === topicId) setExpandedTopic(null);
+  const handleDeleteTopic = async () => {
+    if (!deleteTopicId) return;
+    const topicId = deleteTopicId;
+    try {
+      await deleteTopic(projectId, topicId);
+      setTopics((prev) => prev.filter((t) => t._id !== topicId));
+      if (expandedTopic === topicId) setExpandedTopic(null);
+      toast.success("Topic deleted");
+    } catch {
+      toast.error("Failed to delete topic");
+    } finally {
+      setDeleteTopicId(null);
+    }
+  };
+
+  const handleEditTopic = async (topicId: string, title: string, content: string) => {
+    try {
+      await editTopic(projectId, topicId, { title, content });
+      setTopics((prev) =>
+        prev.map((t) => (t._id === topicId ? { ...t, title, content } : t))
+      );
+      toast.success("Topic updated");
+    } catch {
+      toast.error("Failed to update topic");
+    }
   };
 
   const handleReply = async (topicId: string) => {
@@ -118,13 +144,36 @@ export default function DiscussionTab({ projectId }: Props) {
     }));
   };
 
-  const handleDeleteComment = async (topicId: string, commentId: string) => {
-    if (!confirm("Delete this comment?")) return;
-    await deleteComment(projectId, commentId);
-    setTopicComments((prev) => ({
-      ...prev,
-      [topicId]: (prev[topicId] ?? []).filter((c) => c._id !== commentId),
-    }));
+  const handleDeleteComment = async () => {
+    if (!deleteCommentData) return;
+    const { topicId, commentId } = deleteCommentData;
+    try {
+      await deleteComment(projectId, commentId);
+      setTopicComments((prev) => ({
+        ...prev,
+        [topicId]: (prev[topicId] ?? []).filter((c) => c._id !== commentId),
+      }));
+      toast.success("Comment deleted");
+    } catch {
+      toast.error("Failed to delete comment");
+    } finally {
+      setDeleteCommentData(null);
+    }
+  };
+
+  const handleEditComment = async (topicId: string, commentId: string, content: string) => {
+    try {
+      await editComment(projectId, commentId, content);
+      setTopicComments((prev) => ({
+        ...prev,
+        [topicId]: (prev[topicId] ?? []).map((c) =>
+          c._id === commentId ? { ...c, content } : c
+        ),
+      }));
+      toast.success("Comment updated");
+    } catch {
+      toast.error("Failed to update comment");
+    }
   };
 
   const pinned = topics.filter((t) => t.isPinned);
@@ -197,12 +246,14 @@ export default function DiscussionTab({ projectId }: Props) {
                 <TopicCard key={t._id} topic={t} projectId={projectId} user={user}
                   expanded={expandedTopic === t._id} comments={topicComments[t._id] ?? []}
                   onExpand={() => handleExpand(t._id)} onUpvote={() => handleTopicUpvote(t._id)}
-                  onPin={() => handlePin(t._id)} onDelete={() => handleDeleteTopic(t._id)}
+                  onPin={() => handlePin(t._id)} onDelete={() => setDeleteTopicId(t._id)}
+                  onEdit={(title, content) => handleEditTopic(t._id, title, content)}
                   replyContent={replyContent[t._id] ?? ""}
                   onReplyChange={(v) => setReplyContent((p) => ({ ...p, [t._id]: v }))}
                   onReplySubmit={() => handleReply(t._id)} submittingReply={submittingReply === t._id}
                   onCommentUpvote={(cid) => handleCommentUpvote(t._id, cid)}
-                  onCommentDelete={(cid) => handleDeleteComment(t._id, cid)}
+                  onCommentDelete={(cid) => setDeleteCommentData({ topicId: t._id, commentId: cid })}
+                  onCommentEdit={(cid, content) => handleEditComment(t._id, cid, content)}
                 />
               ))}
             </div>
@@ -214,16 +265,35 @@ export default function DiscussionTab({ projectId }: Props) {
             <TopicCard key={t._id} topic={t} projectId={projectId} user={user}
               expanded={expandedTopic === t._id} comments={topicComments[t._id] ?? []}
               onExpand={() => handleExpand(t._id)} onUpvote={() => handleTopicUpvote(t._id)}
-              onPin={() => handlePin(t._id)} onDelete={() => handleDeleteTopic(t._id)}
+              onPin={() => handlePin(t._id)} onDelete={() => setDeleteTopicId(t._id)}
+              onEdit={(title, content) => handleEditTopic(t._id, title, content)}
               replyContent={replyContent[t._id] ?? ""}
               onReplyChange={(v) => setReplyContent((p) => ({ ...p, [t._id]: v }))}
               onReplySubmit={() => handleReply(t._id)} submittingReply={submittingReply === t._id}
               onCommentUpvote={(cid) => handleCommentUpvote(t._id, cid)}
-              onCommentDelete={(cid) => handleDeleteComment(t._id, cid)}
+              onCommentDelete={(cid) => setDeleteCommentData({ topicId: t._id, commentId: cid })}
+              onCommentEdit={(cid, content) => handleEditComment(t._id, cid, content)}
             />
           ))}
         </>
       )}
+
+      <ConfirmModal
+        isOpen={!!deleteTopicId}
+        title="Delete Topic"
+        message="Are you sure you want to delete this topic? All comments within it will also be deleted."
+        confirmText="Delete"
+        onConfirm={handleDeleteTopic}
+        onCancel={() => setDeleteTopicId(null)}
+      />
+      <ConfirmModal
+        isOpen={!!deleteCommentData}
+        title="Delete Comment"
+        message="Are you sure you want to delete this comment?"
+        confirmText="Delete"
+        onConfirm={handleDeleteComment}
+        onCancel={() => setDeleteCommentData(null)}
+      />
     </div>
   );
 }
@@ -238,21 +308,28 @@ interface TopicCardProps {
   onUpvote: () => void;
   onPin: () => void;
   onDelete: () => void;
+  onEdit: (title: string, content: string) => void;
   replyContent: string;
   onReplyChange: (v: string) => void;
   onReplySubmit: () => void;
   submittingReply: boolean;
   onCommentUpvote: (id: string) => void;
   onCommentDelete: (id: string) => void;
+  onCommentEdit: (id: string, content: string) => void;
 }
 
 function TopicCard({
   topic, user, expanded, comments,
-  onExpand, onUpvote, onPin, onDelete,
+  onExpand, onUpvote, onPin, onDelete, onEdit,
   replyContent, onReplyChange, onReplySubmit, submittingReply,
-  onCommentUpvote, onCommentDelete,
+  onCommentUpvote, onCommentDelete, onCommentEdit,
 }: TopicCardProps) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editTitle, setEditTitle] = useState(topic.title);
+  const [editContent, setEditContent] = useState(topic.content);
+
   const upvoted = user ? topic.upvotes.includes(user._id) : false;
+  const isAuthor = typeof topic.author === "object" && (topic.author as { _id: string })._id === user?._id;
 
   return (
     <div className={`bg-white border rounded-xl overflow-hidden transition-all ${topic.isPinned ? "border-amber-300" : "border-gray-200"}`}>
@@ -268,26 +345,68 @@ function TopicCard({
             <span className="font-semibold">{topic.upvotes.length}</span>
           </button>
           <div className="flex-1 min-w-0">
-            <button onClick={onExpand} className="text-left w-full">
-              <h3 className="font-semibold text-gray-900 hover:text-blue-600 transition-colors">
-                {topic.title}
-              </h3>
-              <p className="text-sm text-gray-500 mt-1 line-clamp-2">{topic.content}</p>
-            </button>
-            <div className="flex items-center gap-3 mt-2 text-xs text-gray-400">
-              <span>{new Date(topic.createdAt).toLocaleDateString()}</span>
-              <button onClick={onExpand} className="hover:text-blue-600">
-                {comments.length} repl{comments.length !== 1 ? "ies" : "y"}
-              </button>
-              {user?.role === "admin" && (
-                <>
-                  <button onClick={onPin} className="hover:text-amber-500">
-                    {topic.isPinned ? "Unpin" : "Pin"}
+            {isEditing ? (
+              <div className="space-y-2 w-full pr-4 pb-2">
+                <input
+                  value={editTitle}
+                  onChange={(e) => setEditTitle(e.target.value)}
+                  className="w-full rounded-lg border border-blue-300 px-3 py-1.5 text-sm font-semibold focus:border-blue-600 focus:outline-none"
+                />
+                <textarea
+                  value={editContent}
+                  onChange={(e) => setEditContent(e.target.value)}
+                  rows={2}
+                  className="w-full rounded-lg border border-blue-300 px-3 py-1.5 text-sm text-gray-700 focus:border-blue-600 focus:outline-none resize-none"
+                />
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => {
+                      onEdit(editTitle, editContent);
+                      setIsEditing(false);
+                    }}
+                    className="text-xs bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700 font-medium"
+                  >
+                    Save
                   </button>
-                  <button onClick={onDelete} className="hover:text-red-500 ml-auto">Delete</button>
-                </>
-              )}
-            </div>
+                  <button
+                    onClick={() => {
+                      setEditTitle(topic.title);
+                      setEditContent(topic.content);
+                      setIsEditing(false);
+                    }}
+                    className="text-xs border border-gray-300 text-gray-600 px-3 py-1.5 rounded-lg hover:bg-gray-50 font-medium"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <>
+                <button onClick={onExpand} className="text-left w-full">
+                  <h3 className="font-semibold text-gray-900 hover:text-blue-600 transition-colors">
+                    {topic.title}
+                  </h3>
+                  <p className="text-sm text-gray-500 mt-1 line-clamp-2">{topic.content}</p>
+                </button>
+                <div className="flex items-center gap-3 mt-2 text-xs text-gray-400">
+                  <span>{new Date(topic.createdAt).toLocaleDateString()}</span>
+                  <button onClick={onExpand} className="hover:text-blue-600">
+                    {comments.length} repl{comments.length !== 1 ? "ies" : "y"}
+                  </button>
+                  {isAuthor && (
+                    <button onClick={() => setIsEditing(true)} className="hover:text-blue-500">Edit</button>
+                  )}
+                  {user?.role === "admin" && (
+                    <button onClick={onPin} className="hover:text-amber-500">
+                      {topic.isPinned ? "Unpin" : "Pin"}
+                    </button>
+                  )}
+                  {(user?.role === "admin" || isAuthor) && (
+                    <button onClick={onDelete} className="hover:text-red-500 ml-auto">Delete</button>
+                  )}
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -298,6 +417,7 @@ function TopicCard({
             <CommentRow key={c._id} comment={c} user={user}
               onUpvote={() => onCommentUpvote(c._id)}
               onDelete={() => onCommentDelete(c._id)}
+              onEdit={(content) => onCommentEdit(c._id, content)}
             />
           ))}
           <div className="flex gap-2 pt-1">
@@ -322,31 +442,72 @@ function TopicCard({
   );
 }
 
-function CommentRow({ comment, user, onUpvote, onDelete }: {
+function CommentRow({ comment, user, onUpvote, onDelete, onEdit }: {
   comment: IComment;
   user: { _id: string; role: string } | null;
   onUpvote: () => void;
   onDelete: () => void;
+  onEdit: (content: string) => void;
 }) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editContent, setEditContent] = useState(comment.content);
+
   const upvoted = user ? comment.upvotes.includes(user._id) : false;
   const authorName = typeof comment.author === "object" ? (comment.author as { name: string }).name : "User";
+  const isAuthor = typeof comment.author === "object" && (comment.author as { _id: string })._id === user?._id;
 
   return (
     <div className="flex gap-2">
       <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gray-200 text-xs font-bold text-gray-500">
         {authorName.charAt(0).toUpperCase()}
       </div>
-      <div className="flex-1">
+      <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
           <span className="text-xs font-semibold text-gray-900">{authorName}</span>
           <span className="text-xs text-gray-400">{new Date(comment.createdAt).toLocaleDateString()}</span>
         </div>
-        <p className="text-sm text-gray-500 mt-0.5">{comment.content}</p>
+        
+        {isEditing ? (
+          <div className="mt-1 space-y-2">
+            <textarea
+              value={editContent}
+              onChange={(e) => setEditContent(e.target.value)}
+              rows={2}
+              className="w-full text-sm rounded-lg border border-blue-300 px-2 py-1.5 focus:border-blue-600 focus:outline-none resize-none"
+            />
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  onEdit(editContent);
+                  setIsEditing(false);
+                }}
+                className="text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700"
+              >
+                Save
+              </button>
+              <button
+                onClick={() => {
+                  setEditContent(comment.content);
+                  setIsEditing(false);
+                }}
+                className="text-xs border border-gray-300 text-gray-600 px-2 py-1 rounded hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        ) : (
+          <p className="text-sm text-gray-500 mt-0.5">{comment.content}</p>
+        )}
+        
         <div className="flex items-center gap-3 mt-1 text-xs text-gray-400">
           <button onClick={onUpvote} className={`flex items-center gap-1 ${upvoted ? "text-blue-600" : "hover:text-blue-600"}`}>
             ▲ {comment.upvotes.length}
           </button>
-          {(user?.role === "admin" || (typeof comment.author === "object" && (comment.author as { _id: string })._id === user?._id)) && (
+          {!isEditing && isAuthor && (
+            <button onClick={() => setIsEditing(true)} className="hover:text-blue-500">Edit</button>
+          )}
+          {!isEditing && (user?.role === "admin" || isAuthor) && (
             <button onClick={onDelete} className="hover:text-red-500">Delete</button>
           )}
         </div>

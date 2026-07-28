@@ -69,7 +69,7 @@ export const updateTeam = async (req: Request, res: Response) => {
       teamId,
       { name, members },
       { new: true, runValidators: true }
-    );
+    ).populate("members", "-passwordHash");
 
     if (!updatedTeam) {
       return res.status(404).json({ message: "Team not found" });

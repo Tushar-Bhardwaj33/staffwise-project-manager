@@ -9,6 +9,8 @@ import {
 import type { IProjectDocument } from "../../../types/document.type";
 import { Spinner } from "../../../components/ui/Spinner";
 import { EmptyState } from "../../../components/ui/EmptyState";
+import { ConfirmModal } from "../../../components/ui/ConfirmModal";
+import { toast } from "react-toastify";
 
 interface Props { projectId: string }
 
@@ -25,6 +27,7 @@ export default function DocumentsTab({ projectId }: Props) {
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const [titleInput, setTitleInput] = useState("");
+  const [deleteDocId, setDeleteDocId] = useState<string | null>(null);
 
   const fetchDocs = () =>
     listDocuments(projectId)
@@ -50,10 +53,17 @@ export default function DocumentsTab({ projectId }: Props) {
     }
   };
 
-  const handleDelete = async (docId: string) => {
-    if (!confirm("Delete this document?")) return;
-    await deleteDocument(projectId, docId);
-    setDocs((d) => d.filter((doc) => doc._id !== docId));
+  const handleDelete = async () => {
+    if (!deleteDocId) return;
+    try {
+      await deleteDocument(projectId, deleteDocId);
+      setDocs((d) => d.filter((doc) => doc._id !== deleteDocId));
+      toast.success("Document deleted");
+    } catch {
+      toast.error("Failed to delete document");
+    } finally {
+      setDeleteDocId(null);
+    }
   };
 
   const handleDownload = async (docId: string, filename: string) => {
@@ -115,7 +125,7 @@ export default function DocumentsTab({ projectId }: Props) {
                 </button>
                 {(user?.role === "admin" || doc.uploadedBy === user?._id) && (
                   <button
-                    onClick={() => handleDelete(doc._id)}
+                    onClick={() => setDeleteDocId(doc._id)}
                     className="text-xs font-medium text-red-500 hover:text-red-700"
                   >
                     Delete
@@ -126,6 +136,15 @@ export default function DocumentsTab({ projectId }: Props) {
           ))}
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={!!deleteDocId}
+        title="Delete Document"
+        message="Are you sure you want to delete this document? This action cannot be undone."
+        confirmText="Delete"
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteDocId(null)}
+      />
     </div>
   );
 }

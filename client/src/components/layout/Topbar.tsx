@@ -1,8 +1,8 @@
-import { Search, LogOut, User as UserIcon } from "lucide-react";
+import { Search, LogOut, User as UserIcon, Menu } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/useAuth";
 
-export function Topbar() {
+export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -12,8 +12,14 @@ export function Topbar() {
   };
 
   return (
-    <header className="h-16 border-b border-gray-200 bg-white flex items-center justify-between px-6 sticky top-0 z-10 w-full">
-      <div className="flex-1 flex items-center max-w-lg">
+    <header className="h-16 border-b border-gray-200 bg-white flex items-center justify-between px-4 sm:px-6 sticky top-0 z-10 w-full">
+      <div className="flex-1 flex items-center gap-3 sm:gap-4 max-w-lg">
+        <button 
+          onClick={onMenuClick}
+          className="md:hidden p-2 -ml-2 text-gray-500 hover:bg-gray-100 rounded-md transition-colors"
+        >
+          <Menu size={20} />
+        </button>
         <div className="relative w-full">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <Search size={16} className="text-gray-400" />

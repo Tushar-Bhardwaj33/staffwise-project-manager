@@ -27,6 +27,7 @@
     "react-router-dom": "^7.18.1",
     "remark-gfm": "^4.0.1",
     "styled-components": "^6.4.4",
+    "react-toastify": "^11.1.0",
     "tailwind-merge": "^3.6.0",
     "tailwindcss": "^4.3.3",
     "yup": "^1.7.1"
