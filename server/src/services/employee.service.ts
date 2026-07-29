@@ -1,7 +1,7 @@
-// server/src/services/employee.service.ts
 import { User } from "../models/User.model.js";
 import { Team } from "../models/Team.model.js";
 import { Project } from "../models/Project.model.js";
+import { Types } from "mongoose";
 
 const escapeRegex = (str: string) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
@@ -17,7 +17,8 @@ export const findEmployeeByIdentifier = async (identifier: string) => {
 };
 
 export const getProjectsForEmployee = async (userId: string) => {
-  const teams = await Team.find({ members: userId }).select("_id");
+  const userObjectId = new Types.ObjectId(userId);
+  const teams = await Team.find({ members: userObjectId }).select("_id");
   const teamIds = teams.map((t) => t._id);
   return Project.find({ assignedTeams: { $in: teamIds } });
 };
