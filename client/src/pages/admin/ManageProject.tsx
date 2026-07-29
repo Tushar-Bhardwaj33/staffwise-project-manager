@@ -10,6 +10,7 @@ import { PageSpinner } from "../../components/ui/Spinner";
 import { PageHeader } from "../../components/ui/PageHeader";
 import { ProjectTypeBadge } from "../../components/ui/Badge";
 import { SkillTag } from "../../components/ui/SkillTag";
+import { RecommendationsPanel } from "./RecommendationsPanel";
 
 import { toast } from "react-toastify";
 import { ConfirmModal } from "../../components/ui/ConfirmModal";
@@ -120,6 +121,8 @@ export default function ManageProject() {
           </button>
         </div>
       </div>
+
+      <RecommendationsPanel projectId={project._id} />
 
       <div className="grid md:grid-cols-2 gap-6">
         {/* Left: Teams */}

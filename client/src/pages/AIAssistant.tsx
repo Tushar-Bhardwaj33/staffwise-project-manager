@@ -40,7 +40,9 @@ export default function AIAssistant() {
 
     try {
       const endpoint = user?.role === "admin" ? "ai/admin/qa" : "ai/query";
-      const { data } = await api.post<{ response: string }>(endpoint, { query: q });
+      const { data } = await api.post<{ response: string }>(endpoint, { 
+        query: q
+      });
       setMessages((prev) => [...prev, { role: "assistant", content: data.response }]);
     } catch (err: unknown) {
       const msg =

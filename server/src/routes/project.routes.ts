@@ -5,6 +5,7 @@ import { getAllProjects, getProjectById, createProject, updateProject, deletePro
 import { submitPreference, viewPreferences } from "../controllers/preference.controller.js";
 import { createProjectSchema, updateProjectSchema } from "../validators/project.validator.js";
 import { requireRole } from "../middlewares/rbac.middleware.js";
+import { getProjectRecommendations } from "../controllers/recommendation.controller.js";
 
 const router = Router();
 
@@ -13,6 +14,7 @@ router.use(authMiddleware);
 router.get("/", getAllProjects);
 router.post("/", requireRole("admin"), validate(createProjectSchema), createProject);
 router.get("/:id", getProjectById);
+router.get("/:id/recommendations", requireRole("admin"), getProjectRecommendations);
 router.put("/:id", requireRole("admin"), validate(updateProjectSchema), updateProject);
 router.delete("/:id", requireRole("admin"), deleteProject);
 router.post("/:id/teams", requireRole("admin"), assignTeamToProject);

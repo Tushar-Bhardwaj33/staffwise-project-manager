@@ -53,6 +53,28 @@ export function HistoryCard({ project }: Props) {
             
             {validations.length > 0 && (
               <div className="mt-4 pt-4 border-t border-gray-100">
+                <div className="grid grid-cols-3 gap-2 mb-3">
+                  <div className="bg-gray-50 p-2 rounded text-center">
+                    <div className="text-lg font-bold text-gray-900">{validations[0].performanceScores.technical}/10</div>
+                    <div className="text-[10px] text-gray-500 uppercase font-semibold">Technical</div>
+                  </div>
+                  <div className="bg-gray-50 p-2 rounded text-center">
+                    <div className="text-lg font-bold text-gray-900">{validations[0].performanceScores.collaboration}/10</div>
+                    <div className="text-[10px] text-gray-500 uppercase font-semibold">Collab</div>
+                  </div>
+                  <div className="bg-gray-50 p-2 rounded text-center">
+                    <div className="text-lg font-bold text-gray-900">{validations[0].performanceScores.ownership}/10</div>
+                    <div className="text-[10px] text-gray-500 uppercase font-semibold">Ownership</div>
+                  </div>
+                </div>
+                
+                {validations[0].qualitativeNote && (
+                  <div className="mb-3">
+                    <h4 className="text-xs font-semibold text-gray-500 uppercase mb-1">Feedback</h4>
+                    <p className="text-sm text-gray-700 italic break-words whitespace-pre-wrap">"{validations[0].qualitativeNote}"</p>
+                  </div>
+                )}
+                
                 <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Validated Skills</h4>
                 <div className="flex flex-wrap gap-1.5">
                   {/* Take the first validation's skills for simplicity in the card view */}

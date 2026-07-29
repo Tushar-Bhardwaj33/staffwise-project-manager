@@ -20,16 +20,16 @@ import type { IUser } from "../../../types/user.type";
 interface Props { projectId: string }
 
 const reflectionSchema = Yup.object({
-  whatBuilt: Yup.string().trim().required("This field is required"),
-  whatWentWell: Yup.string().trim().required("This field is required"),
-  whatWentWrong: Yup.string().trim().required("This field is required"),
+  whatBuilt: Yup.string().trim().min(10, "Must be at least 10 characters").required("This field is required"),
+  whatWentWell: Yup.string().trim().min(10, "Must be at least 10 characters").required("This field is required"),
+  whatWentWrong: Yup.string().trim().min(10, "Must be at least 10 characters").required("This field is required"),
 });
 
 const validationSchema = Yup.object({
-  technical: Yup.number().min(1).max(5).required("Required"),
-  collaboration: Yup.number().min(1).max(5).required("Required"),
-  ownership: Yup.number().min(1).max(5).required("Required"),
-  qualitativeNote: Yup.string().trim().required("Note is required"),
+  technical: Yup.number().min(1).max(10).required("Required"),
+  collaboration: Yup.number().min(1).max(10).required("Required"),
+  ownership: Yup.number().min(1).max(10).required("Required"),
+  qualitativeNote: Yup.string().trim().min(10, "Must be at least 10 characters").required("Note is required"),
 });
 
 const fieldClass = "w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-600 focus:outline-none resize-none";
@@ -185,15 +185,15 @@ function EmployeeReflectionView({ projectId, userId }: { projectId: string; user
           <div className="p-6 space-y-4">
             <div>
               <h3 className="text-xs font-semibold uppercase text-gray-500 mb-1">What you built</h3>
-              <p className="text-sm text-gray-900 whitespace-pre-wrap">{reflection.whatBuilt}</p>
+              <p className="text-sm text-gray-900 whitespace-pre-wrap break-words">{reflection.whatBuilt}</p>
             </div>
             <div>
               <h3 className="text-xs font-semibold uppercase text-gray-500 mb-1">What went well</h3>
-              <p className="text-sm text-gray-900 whitespace-pre-wrap">{reflection.whatWentWell}</p>
+              <p className="text-sm text-gray-900 whitespace-pre-wrap break-words">{reflection.whatWentWell}</p>
             </div>
             <div>
               <h3 className="text-xs font-semibold uppercase text-gray-500 mb-1">What went wrong</h3>
-              <p className="text-sm text-gray-900 whitespace-pre-wrap">{reflection.whatWentWrong}</p>
+              <p className="text-sm text-gray-900 whitespace-pre-wrap break-words">{reflection.whatWentWrong}</p>
             </div>
             <div>
               <h3 className="text-xs font-semibold uppercase text-gray-500 mb-1">Skills</h3>
@@ -216,21 +216,21 @@ function EmployeeReflectionView({ projectId, userId }: { projectId: string; user
               </div>
               <div className="grid grid-cols-3 gap-4 mb-4">
                 <div className="bg-gray-50 p-3 rounded-lg text-center">
-                  <div className="text-xl font-bold text-gray-900">{v.performanceScores.technical}/5</div>
+                  <div className="text-xl font-bold text-gray-900">{v.performanceScores.technical}/10</div>
                   <div className="text-xs text-gray-500 uppercase font-semibold">Technical</div>
                 </div>
                 <div className="bg-gray-50 p-3 rounded-lg text-center">
-                  <div className="text-xl font-bold text-gray-900">{v.performanceScores.collaboration}/5</div>
+                  <div className="text-xl font-bold text-gray-900">{v.performanceScores.collaboration}/10</div>
                   <div className="text-xs text-gray-500 uppercase font-semibold">Collaboration</div>
                 </div>
                 <div className="bg-gray-50 p-3 rounded-lg text-center">
-                  <div className="text-xl font-bold text-gray-900">{v.performanceScores.ownership}/5</div>
+                  <div className="text-xl font-bold text-gray-900">{v.performanceScores.ownership}/10</div>
                   <div className="text-xs text-gray-500 uppercase font-semibold">Ownership</div>
                 </div>
               </div>
               <div className="mb-4">
                 <h3 className="text-xs font-semibold uppercase text-gray-500 mb-1">Feedback</h3>
-                <p className="text-sm text-gray-800 italic">"{v.qualitativeNote}"</p>
+                <p className="text-sm text-gray-800 italic break-words whitespace-pre-wrap">"{v.qualitativeNote}"</p>
               </div>
               <div>
                 <h3 className="text-xs font-semibold uppercase text-gray-500 mb-2">Validated Skills</h3>
@@ -340,16 +340,16 @@ function AdminValidationRow({
           <h4 className="text-sm font-bold text-gray-900 border-b pb-2">Employee's Reflection</h4>
           <div>
             <h3 className="text-xs font-semibold uppercase text-gray-500 mb-1">What they built</h3>
-            <p className="text-sm text-gray-900 whitespace-pre-wrap">{reflection.whatBuilt}</p>
+            <p className="text-sm text-gray-900 whitespace-pre-wrap break-words">{reflection.whatBuilt}</p>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <h3 className="text-xs font-semibold uppercase text-gray-500 mb-1">Went Well</h3>
-              <p className="text-sm text-gray-700">{reflection.whatWentWell}</p>
+              <p className="text-sm text-gray-700 whitespace-pre-wrap break-words">{reflection.whatWentWell}</p>
             </div>
             <div>
               <h3 className="text-xs font-semibold uppercase text-gray-500 mb-1">Went Wrong</h3>
-              <p className="text-sm text-gray-700">{reflection.whatWentWrong}</p>
+              <p className="text-sm text-gray-700 whitespace-pre-wrap break-words">{reflection.whatWentWrong}</p>
             </div>
           </div>
           <div>
@@ -366,19 +366,19 @@ function AdminValidationRow({
                <h4 className="text-sm font-bold text-green-700 border-b pb-2">Your Validation</h4>
                <div className="grid grid-cols-3 gap-2">
                 <div className="bg-gray-50 p-2 rounded text-center">
-                  <div className="text-lg font-bold text-gray-900">{validation.performanceScores.technical}/5</div>
+                  <div className="text-lg font-bold text-gray-900">{validation.performanceScores.technical}/10</div>
                   <div className="text-[10px] text-gray-500 uppercase font-semibold">Technical</div>
                 </div>
                 <div className="bg-gray-50 p-2 rounded text-center">
-                  <div className="text-lg font-bold text-gray-900">{validation.performanceScores.collaboration}/5</div>
+                  <div className="text-lg font-bold text-gray-900">{validation.performanceScores.collaboration}/10</div>
                   <div className="text-[10px] text-gray-500 uppercase font-semibold">Collab</div>
                 </div>
                 <div className="bg-gray-50 p-2 rounded text-center">
-                  <div className="text-lg font-bold text-gray-900">{validation.performanceScores.ownership}/5</div>
+                  <div className="text-lg font-bold text-gray-900">{validation.performanceScores.ownership}/10</div>
                   <div className="text-[10px] text-gray-500 uppercase font-semibold">Ownership</div>
                 </div>
               </div>
-              <p className="text-sm text-gray-700 italic">"{validation.qualitativeNote}"</p>
+              <p className="text-sm text-gray-700 italic break-words whitespace-pre-wrap">"{validation.qualitativeNote}"</p>
               <div>
                 <h3 className="text-xs font-semibold uppercase text-gray-500 mb-1">Validated Skills</h3>
                 <div className="flex flex-wrap gap-1.5">
@@ -418,22 +418,22 @@ function AdminValidationRow({
                 }
               }}
             >
-              {({ isSubmitting, values }) => (
+              {({ isSubmitting }) => (
                 <Form className="space-y-4">
                   <h4 className="text-sm font-bold text-blue-700 border-b pb-2">Submit Validation</h4>
                   
                   <div className="grid grid-cols-3 gap-3">
                     <div>
-                      <label className="block text-[10px] font-semibold text-gray-500 uppercase mb-1">Technical / 5</label>
-                      <Field type="number" name="technical" min={1} max={5} className={fieldClass + " text-center"} />
+                      <label className="block text-[10px] font-semibold text-gray-500 uppercase mb-1">Technical / 10</label>
+                      <Field type="number" name="technical" min={1} max={10} className={fieldClass + " text-center"} />
                     </div>
                     <div>
-                      <label className="block text-[10px] font-semibold text-gray-500 uppercase mb-1">Collab / 5</label>
-                      <Field type="number" name="collaboration" min={1} max={5} className={fieldClass + " text-center"} />
+                      <label className="block text-[10px] font-semibold text-gray-500 uppercase mb-1">Collab / 10</label>
+                      <Field type="number" name="collaboration" min={1} max={10} className={fieldClass + " text-center"} />
                     </div>
                     <div>
-                      <label className="block text-[10px] font-semibold text-gray-500 uppercase mb-1">Ownership / 5</label>
-                      <Field type="number" name="ownership" min={1} max={5} className={fieldClass + " text-center"} />
+                      <label className="block text-[10px] font-semibold text-gray-500 uppercase mb-1">Ownership / 10</label>
+                      <Field type="number" name="ownership" min={1} max={10} className={fieldClass + " text-center"} />
                     </div>
                   </div>
 

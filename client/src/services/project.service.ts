@@ -44,3 +44,20 @@ export const removeTeamFromProject = async (projectId: IProject["_id"], teamId: 
   const response = await api.delete<IProjectResponse>(`projects/${projectId}/teams/${teamId}`);
   return response.data.project;
 }
+
+export interface ICandidateScore {
+  employee: { id: string; name: string; employeeId: string; skills: string[] };
+  score: number;
+  matchedSkills: string[];
+  preference: "interested" | "not-interested" | "no-response";
+  available: boolean;
+  explanation?: string;
+}
+
+export const getProjectRecommendations = async (projectId: IProject["_id"], limit = 5) => {
+  const response = await api.get<{ candidates: ICandidateScore[] }>(
+    `projects/${projectId}/recommendations`,
+    { params: { limit } }
+  );
+  return response.data.candidates;
+};

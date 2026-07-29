@@ -43,7 +43,7 @@ export default function AITab({ projectId, projectTitle }: Props) {
       const endpoint = user?.role === "admin" ? "ai/admin/qa" : "ai/query";
       const { data } = await api.post<{ response: string }>(endpoint, {
         query: q,
-        projectId,
+        projectId
       });
       setMessages((prev) => [...prev, { role: "assistant", content: data.response }]);
     } catch (err: unknown) {
