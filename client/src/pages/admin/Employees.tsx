@@ -7,6 +7,7 @@ import { EmptyState } from "../../components/ui/EmptyState";
 import { PageHeader } from "../../components/ui/PageHeader";
 import { SkillTag } from "../../components/ui/SkillTag";
 import { RoleBadge } from "../../components/ui/Badge";
+import { useMemo } from "react";
 
 export default function Employees() {
   const [users, setUsers] = useState<IUser[]>([]);
@@ -20,15 +21,23 @@ export default function Employees() {
       .finally(() => setLoading(false));
   }, []);
 
-  const filtered = users.filter((u) => {
+  // const filtered = users.filter((u) => {
+  //   const q = search.toLowerCase();
+  //   return (
+  //     u.name.toLowerCase().includes(q) ||
+  //     u.email.toLowerCase().includes(q) ||
+  //     u.employeeId.toLowerCase().includes(q)
+  //   );
+  // });
+  const filtered = useMemo(() => {
     const q = search.toLowerCase();
-    return (
+    return users.filter((u) => 
       u.name.toLowerCase().includes(q) ||
       u.email.toLowerCase().includes(q) ||
       u.employeeId.toLowerCase().includes(q)
     );
-  });
-
+  }, [users, search]);
+  
   if (loading) return <PageSpinner />;
 
   return (
