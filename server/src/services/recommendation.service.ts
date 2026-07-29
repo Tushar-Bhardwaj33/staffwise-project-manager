@@ -109,7 +109,7 @@ export const getRankedCandidates = async (projectId: string): Promise<ICandidate
   const topCandidates = candidates.slice(0, 3);
   try {
     for (const candidate of topCandidates) {
-      const query = `Provide a one-sentence justification for why this candidate is a good fit for the project. Score: ${candidate.score}, Skills: ${candidate.employee.skills.join(', ')}, Matched: ${candidate.matchedSkills.join(', ')}, Preference: ${candidate.preference}, Available: ${candidate.available}.`;
+      const query = `Provide a one-sentence justification for why this candidate is a good fit for the project. Score: ${candidate.score}, Skills: ${candidate.employee.skills.join(', ')}, Matched: ${candidate.matchedSkills.join(', ')}, Preference: ${candidate.preference}, Available: ${candidate.available} and don't use any markdown just plain text.`;
       const result = await adminQaGraph.invoke({ query, projectId, employeeIdentifier: candidate.employee.employeeId });
       if (result.response) {
         candidate.explanation = result.response.trim();
