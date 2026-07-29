@@ -1,6 +1,7 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, Outlet } from "react-router-dom";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { AppLayout } from "./components/layout/AppLayout";
+import { PublicRoute } from "./components/PublicRoute";
 
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -26,8 +27,10 @@ export default function App() {
       <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} closeOnClick pauseOnHover />
       <Routes>
         {/* Public */}
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
+        <Route element={<PublicRoute><Outlet /></PublicRoute>}>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+        </Route>
 
       {/* Authenticated — wrapped in the app shell */}
       <Route
