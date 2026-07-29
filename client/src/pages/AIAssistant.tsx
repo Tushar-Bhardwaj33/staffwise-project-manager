@@ -3,6 +3,8 @@ import { useAuth } from "../context/useAuth";
 import api from "../services/api";
 import { PageHeader } from "../components/ui/PageHeader";
 import { Spinner } from "../components/ui/Spinner";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 interface Message {
   role: "user" | "assistant";
@@ -37,7 +39,10 @@ export default function AIAssistant() {
     setLoading(true);
 
     try {
-      const { data } = await api.post<{ response: string }>("ai/query", { query: q });
+      const endpoint = user?.role === "admin" ? "ai/admin/qa" : "ai/query";
+      const { data } = await api.post<{ response: string }>(endpoint, { 
+        query: q
+      });
       setMessages((prev) => [...prev, { role: "assistant", content: data.response }]);
     } catch (err: unknown) {
       const msg =
@@ -90,7 +95,15 @@ export default function AIAssistant() {
                   : "bg-white border border-gray-200 text-gray-900 rounded-tl-sm"
               }`}
             >
-              {m.content}
+              {m.role === "assistant" ? (
+                <div className="prose prose-sm max-w-none prose-p:leading-relaxed prose-pre:bg-gray-100 prose-pre:text-gray-800 prose-a:text-blue-600 hover:prose-a:text-blue-500">
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    {m.content}
+                  </ReactMarkdown>
+                </div>
+              ) : (
+                m.content
+              )}
             </div>
           </div>
         ))}

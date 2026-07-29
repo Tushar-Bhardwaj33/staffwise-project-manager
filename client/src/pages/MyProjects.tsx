@@ -4,6 +4,7 @@ import { getUserHistory } from "../services/users.services";
 import { getAllProjects } from "../services/project.service";
 import type { IProject } from "../types/project.type";
 import { ProjectCard } from "../components/ProjectCard";
+import { HistoryCard } from "../components/HistoryCard";
 import { PageSpinner } from "../components/ui/Spinner";
 import { EmptyState } from "../components/ui/EmptyState";
 import { PageHeader } from "../components/ui/PageHeader";
@@ -97,7 +98,7 @@ export default function MyProjects() {
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {history.map((p) => (
-                <ProjectCard key={p._id} project={p} />
+                <HistoryCard key={p._id} project={p} />
               ))}
             </div>
           )}

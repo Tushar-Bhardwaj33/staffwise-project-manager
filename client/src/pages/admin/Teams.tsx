@@ -131,7 +131,6 @@ export default function Teams() {
                   </p>
                 </div>
               </div>
-              <p className="text-xs text-[#20beff]">Edit members →</p>
             </Link>
           ))}
         </div>

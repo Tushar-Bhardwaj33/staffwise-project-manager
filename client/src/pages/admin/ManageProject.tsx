@@ -10,6 +10,12 @@ import { PageSpinner } from "../../components/ui/Spinner";
 import { PageHeader } from "../../components/ui/PageHeader";
 import { ProjectTypeBadge } from "../../components/ui/Badge";
 import { SkillTag } from "../../components/ui/SkillTag";
+import { RecommendationsPanel } from "./RecommendationsPanel";
+
+import { toast } from "react-toastify";
+import { ConfirmModal } from "../../components/ui/ConfirmModal";
+import { ProjectEditModal } from "./ProjectEditModal";
+import { deleteProject } from "../../services/project.service";
 
 export default function ManageProject() {
   const { id } = useParams<{ id: string }>();
@@ -19,6 +25,10 @@ export default function ManageProject() {
   const [preferences, setPreferences] = useState<IPreference[]>([]);
   const [loading, setLoading] = useState(true);
   const [prefTab, setPrefTab] = useState<"interested" | "not-interested">("interested");
+  
+  const [teamToUnassign, setTeamToUnassign] = useState<string | null>(null);
+  const [showEditProject, setShowEditProject] = useState(false);
+  const [showDeleteProject, setShowDeleteProject] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -46,18 +56,31 @@ export default function ManageProject() {
     try {
       const updated = await assignTeamToProject(project._id, teamId);
       setProject(updated);
+      toast.success("Team assigned successfully");
     } catch {
-      alert("Failed to assign team.");
+      toast.error("Failed to assign team.");
     }
   };
 
-  const handleUnassign = async (teamId: string) => {
-    if (!project || !confirm("Remove this team from the project?")) return;
+  const handleUnassign = async () => {
+    if (!project || !teamToUnassign) return;
     try {
-      const updated = await removeTeamFromProject(project._id, teamId);
+      const updated = await removeTeamFromProject(project._id, teamToUnassign);
       setProject(updated);
+      toast.success("Team removed successfully");
     } catch {
-      alert("Failed to unassign team.");
+      toast.error("Failed to unassign team.");
+    }
+  };
+
+  const handleDeleteProject = async () => {
+    if (!project) return;
+    try {
+      await deleteProject(project._id);
+      toast.success("Project deleted successfully");
+      navigate("/projects");
+    } catch {
+      toast.error("Failed to delete project");
     }
   };
 
@@ -76,14 +99,30 @@ export default function ManageProject() {
         ← Back to project
       </button>
 
-      <div className="flex items-start gap-3 mb-6">
+      <div className="flex items-start justify-between gap-3 mb-6">
         <div>
           <div className="flex items-center gap-2 mb-1">
             <ProjectTypeBadge type={project.type} />
           </div>
           <PageHeader title={`Manage: ${project.title}`} />
         </div>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setShowEditProject(true)}
+            className="rounded-lg bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-200 transition-colors"
+          >
+            Edit Project
+          </button>
+          <button
+            onClick={() => setShowDeleteProject(true)}
+            className="rounded-lg bg-red-50 text-red-600 px-4 py-2 text-sm font-semibold hover:bg-red-100 transition-colors"
+          >
+            Delete
+          </button>
+        </div>
       </div>
+
+      <RecommendationsPanel projectId={project._id} />
 
       <div className="grid md:grid-cols-2 gap-6">
         {/* Left: Teams */}
@@ -109,7 +148,7 @@ export default function ManageProject() {
                       </p>
                     </div>
                     <button
-                      onClick={() => handleUnassign(team._id)}
+                      onClick={() => setTeamToUnassign(team._id)}
                       className="text-xs text-red-400 hover:text-red-600 shrink-0"
                     >
                       Remove
@@ -215,6 +254,35 @@ export default function ManageProject() {
           )}
         </div>
       </div>
+      <ConfirmModal
+        isOpen={!!teamToUnassign}
+        title="Remove Team"
+        message="Are you sure you want to remove this team from the project? They will lose access to all project resources."
+        confirmText="Remove"
+        onConfirm={handleUnassign}
+        onCancel={() => setTeamToUnassign(null)}
+      />
+
+      <ConfirmModal
+        isOpen={showDeleteProject}
+        title="Delete Project"
+        message="Are you sure you want to delete this project? This will permanently delete all related documents, discussions, and history. This action cannot be undone."
+        confirmText="Delete Project"
+        onConfirm={handleDeleteProject}
+        onCancel={() => setShowDeleteProject(false)}
+      />
+
+      {showEditProject && project && (
+        <ProjectEditModal
+          isOpen={showEditProject}
+          project={project}
+          onClose={() => setShowEditProject(false)}
+          onSuccess={(updated) => {
+            setProject(updated);
+            setShowEditProject(false);
+          }}
+        />
+      )}
     </div>
   );
 }

@@ -17,10 +17,15 @@ import TeamDetail from "./pages/admin/TeamDetail";
 import NewProject from "./pages/admin/NewProject";
 import ManageProject from "./pages/admin/ManageProject";
 
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 export default function App() {
   return (
-    <Routes>
-      {/* Public */}
+    <>
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} closeOnClick pauseOnHover />
+      <Routes>
+        {/* Public */}
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
 
@@ -101,6 +106,7 @@ export default function App() {
       </Route>
 
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
-    </Routes>
+      </Routes>
+    </>
   );
 }

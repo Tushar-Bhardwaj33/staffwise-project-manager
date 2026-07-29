@@ -9,6 +9,7 @@ import { SkillTag } from "../../components/ui/SkillTag";
 import { RoleBadge } from "../../components/ui/Badge";
 import { ProjectCard } from "../../components/ProjectCard";
 import { EmptyState } from "../../components/ui/EmptyState";
+import { ConfirmModal } from "../../components/ui/ConfirmModal";
 
 export default function EmployeeDetail() {
   const { id } = useParams<{ id: string }>();
@@ -17,6 +18,7 @@ export default function EmployeeDetail() {
   const [history, setHistory] = useState<IProject[]>([]);
   const [loading, setLoading] = useState(true);
   const [toggling, setToggling] = useState(false);
+  const [showConfirmToggle, setShowConfirmToggle] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -35,7 +37,6 @@ export default function EmployeeDetail() {
   const handleRoleToggle = async () => {
     if (!user) return;
     const newRole = user.role === "admin" ? "employee" : "admin";
-    if (!confirm(`Change ${user.name}'s role to ${newRole}?`)) return;
     setToggling(true);
     try {
       await updateRole(user._id, newRole);
@@ -44,6 +45,7 @@ export default function EmployeeDetail() {
       alert("Failed to update role.");
     } finally {
       setToggling(false);
+      setShowConfirmToggle(false);
     }
   };
 
@@ -112,7 +114,7 @@ export default function EmployeeDetail() {
               : "Promote this employee to give them admin access."}
           </p>
           <button
-            onClick={handleRoleToggle}
+            onClick={() => setShowConfirmToggle(true)}
             disabled={toggling}
             className={`rounded-lg px-4 py-2 text-sm font-semibold transition-colors disabled:opacity-60 ${
               user.role === "admin"
@@ -140,6 +142,16 @@ export default function EmployeeDetail() {
           </div>
         )}
       </div>
+
+      <ConfirmModal
+        isOpen={showConfirmToggle}
+        title="Change Role"
+        message={`Are you sure you want to change ${user?.name}'s role to ${user?.role === "admin" ? "employee" : "admin"}?`}
+        confirmText="Change Role"
+        isDestructive={user?.role === "admin"}
+        onConfirm={handleRoleToggle}
+        onCancel={() => setShowConfirmToggle(false)}
+      />
     </div>
   );
 }
