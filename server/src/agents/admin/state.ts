@@ -8,7 +8,6 @@ export const AdminAgentState = new StateSchema({
   projectContext: z.any().optional(),
   employeeContext: z.any().optional(),
   employeeProjects: z.any().optional(),
-  globalContext: z.any().optional(),
   currentUser: z.any().optional(),
   history: z.array(z.any()).optional(),
   response: z.string().optional(),
