@@ -6,6 +6,18 @@ export const getProjectRecommendations = async (req: Request, res: Response) => 
     const projectId = req.params.id;
     const limit = parseInt(req.query.limit as string) || 5;
 
+    if(!projectId) {
+      return res.status(400).json({ message: "Project ID is required" });
+    }
+
+    if (isNaN(limit) || limit <= 0) {
+      return res.status(400).json({ message: "Invalid limit parameter" });
+    }
+
+    if (typeof projectId !== "string") {
+      return res.status(400).json({ message: "Invalid project ID" });
+    }
+
     const candidates = await getRankedCandidates(projectId);
     
     res.status(200).json({ candidates: candidates.slice(0, limit) });
