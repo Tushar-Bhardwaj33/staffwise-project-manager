@@ -7,7 +7,7 @@ import type { IUser } from "../../types/user.type";
 import { PageSpinner } from "../../components/ui/Spinner";
 import { PageHeader } from "../../components/ui/PageHeader";
 import { ConfirmModal } from "../../components/ui/ConfirmModal";
-import { toast } from "react-toastify";
+import { toast } from "../../utils/toast";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { updateTeam, deleteTeam } from "../../services/team.service";
@@ -55,9 +55,9 @@ export default function TeamDetail() {
       await addMemberToTeam(team._id, addingUser);
       await fetchTeam(team._id); // Re-fetch to get populated members
       setAddingUser("");
-      toast.success("Member added");
+      toast.success("Member Added", "Team member has been added");
     } catch (e) {
-      toast.error("Failed to add member");
+      toast.error("Error", "Failed to add member");
     } finally {
       setSubmitting(false);
     }
@@ -68,9 +68,9 @@ export default function TeamDetail() {
     try {
       await removeMemberFromTeam(team._id, userId);
       await fetchTeam(team._id); // Re-fetch to get populated members
-      toast.success("Member removed");
+      toast.success("Member Removed", "Team member has been removed");
     } catch (e) {
-      toast.error("Failed to remove member");
+      toast.error("Error", "Failed to remove member");
     }
   };
 
@@ -78,10 +78,10 @@ export default function TeamDetail() {
     if (!team) return;
     try {
       await deleteTeam(team._id);
-      toast.success("Team deleted");
+      toast.success("Team Deleted", "Team has been deleted successfully");
       navigate("/admin/teams");
     } catch {
-      toast.error("Failed to delete team");
+      toast.error("Error", "Failed to delete team");
     }
   };
 
@@ -130,9 +130,9 @@ export default function TeamDetail() {
                 const updated = await updateTeam(team._id, { name: values.name });
                 setTeam(updated);
                 setShowEdit(false);
-                toast.success("Team updated");
+                toast.success("Team Updated", "Team has been updated");
               } catch {
-                toast.error("Failed to update team.");
+                toast.error("Error", "Failed to update team.");
               } finally {
                 setSubmitting(false);
               }

@@ -1,3 +1,5 @@
+import { Loader } from "./Loader";
+
 interface SpinnerProps {
   size?: "sm" | "md" | "lg";
   className?: string;
@@ -15,7 +17,7 @@ export function Spinner({ size = "md", className = "" }: SpinnerProps) {
 export function PageSpinner() {
   return (
     <div className="flex min-h-[60vh] items-center justify-center">
-      <Spinner size="lg" />
+      <Loader />
     </div>
   );
 }

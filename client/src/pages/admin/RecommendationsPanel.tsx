@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { toast } from "react-toastify";
+import { toast } from "../../utils/toast";
 import { getProjectRecommendations, type ICandidateScore } from "../../services/project.service";
 import { SkillTag } from "../../components/ui/SkillTag";
 import { PageSpinner } from "../../components/ui/Spinner";
@@ -15,7 +15,8 @@ export function RecommendationsPanel({ projectId }: { projectId: string }) {
       const results = await getProjectRecommendations(projectId, 5);
       setCandidates(results);
     } catch (err: any) {
-      toast.error(err.response?.data?.message || "Failed to load AI suggestions");
+      const errMessage = err.response?.data?.message || "Failed to load AI suggestions";
+      toast.error("Error", errMessage);
     } finally {
       setLoading(false);
     }

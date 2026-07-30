@@ -31,7 +31,7 @@ export const register = async (req: Request, res: Response) => {
       role: "employee", // enforced regardless of what's sent — no admin signup
     });
 
-    user.passwordHash = undefined; // don't send the password hash back to the client
+    // user.passwordHash = undefined; // don't send the password hash back to the client
 
     const token = signToken({ id: user._id.toString(), role: user.role });
 

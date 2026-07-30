@@ -8,4 +8,5 @@ export const adminLLM = new ChatOpenAI({
     baseURL: `${process.env.DATABRICKS_HOST}/ai-gateway/mlflow/v1`,
   },
   maxTokens: 2000,
+  streaming: true,
 });

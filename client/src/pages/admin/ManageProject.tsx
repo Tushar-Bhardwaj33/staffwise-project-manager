@@ -12,7 +12,7 @@ import { ProjectTypeBadge } from "../../components/ui/Badge";
 import { SkillTag } from "../../components/ui/SkillTag";
 import { RecommendationsPanel } from "./RecommendationsPanel";
 
-import { toast } from "react-toastify";
+import { toast } from "../../utils/toast";
 import { ConfirmModal } from "../../components/ui/ConfirmModal";
 import { ProjectEditModal } from "./ProjectEditModal";
 import { deleteProject } from "../../services/project.service";
@@ -56,9 +56,9 @@ export default function ManageProject() {
     try {
       const updated = await assignTeamToProject(project._id, teamId);
       setProject(updated);
-      toast.success("Team assigned successfully");
+      toast.success("Team Assigned", "Team assigned successfully");
     } catch {
-      toast.error("Failed to assign team.");
+      toast.error("Error", "Failed to assign team.");
     }
   };
 
@@ -67,9 +67,9 @@ export default function ManageProject() {
     try {
       const updated = await removeTeamFromProject(project._id, teamToUnassign);
       setProject(updated);
-      toast.success("Team removed successfully");
+      toast.success("Team Removed", "Team removed successfully");
     } catch {
-      toast.error("Failed to unassign team.");
+      toast.error("Error", "Failed to unassign team.");
     }
   };
 
@@ -77,10 +77,10 @@ export default function ManageProject() {
     if (!project) return;
     try {
       await deleteProject(project._id);
-      toast.success("Project deleted successfully");
+      toast.success("Project Deleted", "Project deleted successfully");
       navigate("/projects");
     } catch {
-      toast.error("Failed to delete project");
+      toast.error("Error", "Failed to delete project");
     }
   };
 

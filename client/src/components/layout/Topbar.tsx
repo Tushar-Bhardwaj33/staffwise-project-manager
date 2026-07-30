@@ -1,6 +1,7 @@
 import { Search, LogOut, User as UserIcon, Menu } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/useAuth";
+import { toast } from "../../utils/toast";
 
 export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
   const { user, logout } = useAuth();
@@ -8,6 +9,7 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
 
   const handleLogout = () => {
     logout();
+    toast.success("Signed out", "You have been successfully logged out.");
     navigate('/login');
   };
 
@@ -20,15 +22,10 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
         >
           <Menu size={20} />
         </button>
-        <div className="relative w-full">
+        <div className="relative w-full hidden sm:block">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            {/* <Search size={16} className="text-gray-400" /> */}
+             {/* <Search size={16} className="text-gray-400" /> */}
           </div>
-          {/* <input */}
-            {/* type="text" */}
-            {/* className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-gray-50 placeholder-gray-500 focus:outline-none focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 sm:text-sm transition-colors" */}
-            {/* placeholder="Search projects..." */}
-          {/* /> */}
         </div>
       </div>
       

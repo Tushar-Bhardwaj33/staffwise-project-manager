@@ -15,4 +15,5 @@ export interface IProject {
   createdAt: string;
   updatedAt: string;
   __v: number;
+  color?: string;
 }

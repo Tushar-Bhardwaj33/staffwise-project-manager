@@ -95,7 +95,7 @@ export default function ProjectDetail() {
         {isAssigned && activeTab === "documents" && <DocumentsTab projectId={project._id} />}
         {isAssigned && activeTab === "discussion" && <DiscussionTab projectId={project._id} />}
         {isAssigned && activeTab === "team" && <TeamTab project={project} />}
-        {isAssigned && activeTab === "ai" && <AITab projectId={project._id} projectTitle={project.title} />}
+        {isAssigned && activeTab === "ai" && <AITab />}
         {isAssigned && activeTab === "reflections" && <ReflectionsTab projectId={project._id} />}
       </div>
     </div>

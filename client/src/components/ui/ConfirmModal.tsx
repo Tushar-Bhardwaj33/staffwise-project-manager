@@ -36,45 +36,52 @@ export function ConfirmModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {/* Backdrop */}
       <div 
-        className="fixed inset-0 bg-gray-900/40 backdrop-blur-sm transition-opacity"
+        className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity"
         onClick={onCancel}
       />
       
-      <div className="relative w-full max-w-sm transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-        <h3 className="text-lg font-bold leading-6 text-gray-900 mb-2">
-          {title}
-        </h3>
-        <div className="mt-2">
-          <p className="text-sm text-gray-500">{message}</p>
-        </div>
-
-        <div className="mt-6 flex gap-3 justify-end">
-          <button
-            type="button"
-            className={`inline-flex justify-center rounded-lg border px-4 py-2 text-sm font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 transition-colors ${
-              isDestructive
-                ? "border-transparent bg-green-600 text-white hover:bg-green-700 focus-visible:ring-green-500"
-                : "border-gray-200 bg-white text-gray-700 hover:bg-gray-50 hover:text-gray-900 focus-visible:ring-gray-500"
-            }`}
-            onClick={onCancel}
-          >
-            {cancelText}
-          </button>
-          <button
-            type="button"
-            className={`inline-flex justify-center rounded-lg border px-4 py-2 text-sm font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 transition-colors ${
-              isDestructive 
-                ? "border-gray-200 bg-white text-gray-700 hover:bg-red-50 hover:text-red-700 hover:border-red-200 focus-visible:ring-gray-500" 
-                : "border-transparent bg-blue-600 text-white hover:bg-blue-700 focus-visible:ring-blue-500"
-            }`}
-            onClick={() => {
-              onConfirm();
-              onCancel();
-            }}
-          >
-            {confirmText}
-          </button>
+      {/* Modal Card */}
+      <div className="relative group select-none w-[320px] flex flex-col p-4 items-center justify-center bg-gray-800 border border-gray-700 shadow-2xl rounded-2xl animate-in fade-in zoom-in duration-200">
+        <div className="w-full">
+          <div className="text-center p-3 flex-auto justify-center">
+            {isDestructive ? (
+              <svg fill="currentColor" viewBox="0 0 20 20" className="group-hover:animate-bounce w-12 h-12 flex items-center text-gray-600 fill-red-500 mx-auto" xmlns="http://www.w3.org/2000/svg">
+                <path clipRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" fillRule="evenodd" />
+              </svg>
+            ) : (
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" className="group-hover:animate-bounce w-12 h-12 flex items-center text-blue-500 mx-auto" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            )}
+            
+            <h2 className="text-xl font-bold py-4 text-gray-200">{title}</h2>
+            <p className="font-medium text-sm text-gray-400 px-2">
+              {message}
+            </p>
+          </div>
+          <div className="p-2 mt-4 text-center flex justify-center gap-4 w-full">
+            <button 
+              onClick={onCancel}
+              className="flex-1 bg-gray-700 px-5 py-2 text-sm shadow-sm font-medium tracking-wider border-2 border-gray-600 hover:border-gray-500 text-gray-300 rounded-full hover:shadow-lg hover:bg-gray-600 transition ease-in duration-300"
+            >
+              {cancelText}
+            </button>
+            <button 
+              onClick={() => {
+                onConfirm();
+                onCancel();
+              }}
+              className={`flex-1 px-5 py-2 text-sm shadow-sm hover:shadow-lg font-medium tracking-wider border-2 rounded-full transition ease-in duration-300 ${
+                isDestructive 
+                  ? "bg-red-500 hover:bg-transparent border-red-500 text-white hover:text-red-500" 
+                  : "bg-blue-600 hover:bg-transparent border-blue-600 text-white hover:text-blue-500"
+              }`}
+            >
+              {confirmText}
+            </button>
+          </div>
         </div>
       </div>
     </div>

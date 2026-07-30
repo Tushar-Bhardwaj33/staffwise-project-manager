@@ -16,6 +16,7 @@ const projectSchema = new Schema<IProject>(
     endDate: { type: Date, required: true },
     assignedTeams: [{ type: Schema.Types.ObjectId, ref: "Team" }],
     createdBy: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    color: { type: String, default: null },
   },
   { timestamps: true }
 );

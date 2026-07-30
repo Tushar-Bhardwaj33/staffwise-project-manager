@@ -36,7 +36,7 @@ const buildContextBlock = (state: any) => {
 
 const MAX_TOOL_ROUNDS = 4;
 
-export const qa: typeof AdminAgentState.Node = async (state) => {
+export const qa: typeof AdminAgentState.Node = async (state, config) => {
   // True "org-wide" question: an admin with no specific project or employee already
   // resolved. Instead of dumping every project/employee/team into the prompt, give the
   // model tools so it only fetches the data this particular question needs.
@@ -65,7 +65,7 @@ If you don't have the answer, do NOT say "I have no context". Instead, be conver
   messages.push({ role: "user", content: state.query });
 
   if (!isGlobalAdminQuery) {
-    const result = await adminLLM.invoke(messages);
+    const result = await adminLLM.invoke(messages, config);
     return { response: result.content as string };
   }
 
@@ -83,13 +83,13 @@ If you don't have the answer, do NOT say "I have no context". Instead, be conver
     for (const call of result.tool_calls) {
       const toolFn = toolsByName[call.name];
       const output = toolFn
-        ? await toolFn.invoke(call.args as any)
+        ? await toolFn.invoke(call.args as any, config)
         : `Unknown tool: ${call.name}`;
       messages.push({ role: "tool", tool_call_id: call.id, content: String(output) });
     }
   }
 
   // Ran out of rounds — force a final plain-text answer with whatever we've gathered.
-  const finalResult = await adminLLM.invoke(messages);
+  const finalResult = await adminLLM.invoke(messages, config);
   return { response: finalResult.content as string };
 };

@@ -53,7 +53,7 @@ export default function Dashboard() {
   if (loading) return <PageSpinner />;
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
+    <div className="p-6 max-w-6xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <PageHeader
         title={`Welcome back, ${user?.name?.split(" ")[0]}`}
         subtitle={user?.role === "admin" ? "Here's what needs your attention" : "Here are your active projects"}
@@ -128,9 +128,14 @@ export default function Dashboard() {
 
 function StatCard({ label, value, highlight }: { label: string; value: number; highlight?: boolean }) {
   return (
-    <div className={`rounded-xl border p-4 ${highlight ? "border-amber-200 bg-amber-50" : "border-gray-200 bg-white"}`}>
-      <p className="text-2xl font-bold text-gray-900">{value}</p>
-      <p className="text-xs text-gray-500 mt-0.5">{label}</p>
+    <div className={`relative overflow-hidden rounded-2xl p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${highlight ? "bg-gradient-to-br from-amber-500 to-orange-400 text-white shadow-md shadow-orange-500/20 border border-amber-400" : "bg-white/80 backdrop-blur-md border border-white/40 shadow-sm group hover:border-blue-200"}`}>
+      {/* Background decoration for highlight */}
+      <div className={`absolute -right-6 -top-6 w-24 h-24 rounded-full opacity-10 transition-transform duration-500 group-hover:scale-150 ${highlight ? 'bg-white' : 'bg-blue-600'}`} />
+      
+      <div className="relative z-10 flex flex-col gap-1">
+        <p className={`text-3xl font-black tracking-tight ${highlight ? "text-white" : "text-gray-900 group-hover:text-blue-600 transition-colors"}`}>{value}</p>
+        <p className={`text-sm font-medium ${highlight ? "text-amber-100" : "text-gray-500"}`}>{label}</p>
+      </div>
     </div>
   );
 }

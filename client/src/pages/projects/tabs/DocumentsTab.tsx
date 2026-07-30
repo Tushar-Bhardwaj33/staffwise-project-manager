@@ -10,8 +10,7 @@ import type { IProjectDocument } from "../../../types/document.type";
 import { Spinner } from "../../../components/ui/Spinner";
 import { EmptyState } from "../../../components/ui/EmptyState";
 import { ConfirmModal } from "../../../components/ui/ConfirmModal";
-import { toast } from "react-toastify";
-
+import { toast } from "../../../utils/toast";
 interface Props { projectId: string }
 
 function formatBytes(bytes: number) {
@@ -25,6 +24,7 @@ export default function DocumentsTab({ projectId }: Props) {
   const [docs, setDocs] = useState<IProjectDocument[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
   const [titleInput, setTitleInput] = useState("");
   const [deleteDocId, setDeleteDocId] = useState<string | null>(null);
@@ -58,9 +58,9 @@ export default function DocumentsTab({ projectId }: Props) {
     try {
       await deleteDocument(projectId, deleteDocId);
       setDocs((d) => d.filter((doc) => doc._id !== deleteDocId));
-      toast.success("Document deleted");
+      toast.success("Document Deleted", "Document has been deleted successfully");
     } catch {
-      toast.error("Failed to delete document");
+      toast.error("Error", "Failed to delete document");
     } finally {
       setDeleteDocId(null);
     }
@@ -104,36 +104,64 @@ export default function DocumentsTab({ projectId }: Props) {
       {loading ? (
         <div className="flex justify-center py-10"><Spinner /></div>
       ) : docs.length === 0 ? (
-        <EmptyState title="No documents yet" description="Upload the first document for this project." />
+        <div className="flex flex-col items-center justify-center py-16 bg-white border border-gray-200 rounded-xl">
+          <EmptyState
+            title="No documents yet"
+            description="Upload the first document for this project."
+          />
+        </div>
       ) : (
-        <div className="bg-white border border-gray-200 rounded-xl divide-y divide-gray-200">
-          {docs.map((doc) => (
-            <div key={doc._id} className="flex items-center gap-3 px-5 py-3 hover:bg-gray-50 transition-colors">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-100 text-gray-500 text-xs font-bold uppercase shrink-0">
-                {doc.filename.split(".").pop()}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 truncate">{doc.title}</p>
-                <p className="text-xs text-gray-500">{doc.filename} · {formatBytes(doc.size)}</p>
-              </div>
-              <div className="flex gap-2 shrink-0">
-                <button
-                  onClick={() => handleDownload(doc._id, doc.filename)}
-                  className="text-xs font-medium text-blue-600 hover:underline"
-                >
-                  Download
-                </button>
-                {(user?.role === "admin" || doc.uploadedBy === user?._id) && (
-                  <button
-                    onClick={() => setDeleteDocId(doc._id)}
-                    className="text-xs font-medium text-red-500 hover:text-red-700"
-                  >
-                    Delete
-                  </button>
-                )}
-              </div>
-            </div>
-          ))}
+        <div className="space-y-4">
+          <div className="flex justify-between items-center bg-gray-50 p-4 border border-gray-200 rounded-xl">
+            <h3 className="text-sm font-medium text-gray-700">Project Documents</h3>
+            <input
+              type="text"
+              placeholder="Search documents..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="rounded-lg border border-gray-200 px-3 py-1.5 text-sm focus:border-blue-600 focus:outline-none w-64"
+            />
+          </div>
+
+          <div className="bg-white border border-gray-200 rounded-xl divide-y divide-gray-200">
+            {docs.filter(d => 
+              d.filename.toLowerCase().includes(searchQuery.toLowerCase()) || 
+              d.title.toLowerCase().includes(searchQuery.toLowerCase())
+            ).length === 0 ? (
+              <div className="py-10 text-center text-sm text-gray-500">No documents match your search.</div>
+            ) : (
+              docs.filter(d => 
+                d.filename.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                d.title.toLowerCase().includes(searchQuery.toLowerCase())
+              ).map((doc) => (
+                <div key={doc._id} className="flex items-center gap-3 px-5 py-3 hover:bg-gray-50 transition-colors">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-100 text-gray-500 text-xs font-bold uppercase shrink-0">
+                    {doc.filename.split(".").pop()}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900 truncate">{doc.title}</p>
+                    <p className="text-xs text-gray-500">{doc.filename} · {formatBytes(doc.size)}</p>
+                  </div>
+                  <div className="flex gap-2 shrink-0">
+                    <button
+                      onClick={() => handleDownload(doc._id, doc.filename)}
+                      className="text-xs font-medium text-blue-600 hover:underline"
+                    >
+                      Download
+                    </button>
+                    {(user?.role === "admin" || doc.uploadedBy === user?._id) && (
+                      <button
+                        onClick={() => setDeleteDocId(doc._id)}
+                        className="text-xs font-medium text-red-500 hover:text-red-700"
+                      >
+                        Delete
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
         </div>
       )}
 

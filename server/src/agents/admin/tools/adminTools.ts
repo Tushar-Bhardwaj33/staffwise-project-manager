@@ -1,5 +1,5 @@
 import { tool } from "@langchain/core/tools";
-import { z } from "zod/v4";
+import { z } from "zod";
 import { Project } from "../../../models/Project.model.js";
 import { Team } from "../../../models/Team.model.js";
 import { User } from "../../../models/User.model.js";
@@ -92,4 +92,19 @@ export const findEmployeeTool = tool(
   }
 );
 
-export const adminTools = [listProjectsTool, listEmployeesTool, listTeamsTool, getProjectDetailsTool, findEmployeeTool];
+export const updateProjectNotesTool = tool(
+  async ({ title, content, status }: any) => {
+    return "Project notes updated on the UI.";
+  },
+  {
+    name: "update_projectNotes",
+    description: "Update the collaborative project notepad shared with the user. Use this tool whenever you want to draft, modify, or append notes, tasks, or requirements for the project. The user will see these changes live.",
+    schema: z.object({
+      title: z.string().describe("The title of the project notes"),
+      content: z.string().describe("The rich content or bullets of the notes"),
+      status: z.enum(["draft", "active", "completed"]).describe("Current status of the project notes")
+    }),
+  }
+);
+
+export const adminTools = [listProjectsTool, listEmployeesTool, listTeamsTool, getProjectDetailsTool, findEmployeeTool, updateProjectNotesTool];

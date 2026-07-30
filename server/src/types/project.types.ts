@@ -13,4 +13,5 @@ export interface IProject extends Document {
   createdBy: Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
+  color?: string;
 }

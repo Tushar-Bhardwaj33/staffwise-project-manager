@@ -17,7 +17,8 @@ import type { ITopic, IComment, IThreadedComment } from "../../../types/discussi
 import { Spinner } from "../../../components/ui/Spinner";
 import { EmptyState } from "../../../components/ui/EmptyState";
 import { ConfirmModal } from "../../../components/ui/ConfirmModal";
-import { toast } from "react-toastify";
+import { toast } from "../../../utils/toast";
+import { DiscussionComments } from "../../../components/ui/DiscussionComments";
 
 interface Props { projectId: string }
 
@@ -94,9 +95,9 @@ export default function DiscussionTab({ projectId }: Props) {
       await deleteTopic(projectId, topicId);
       setTopics((prev) => prev.filter((t) => t._id !== topicId));
       if (expandedTopic === topicId) setExpandedTopic(null);
-      toast.success("Topic deleted");
+      toast.success("Topic Deleted", "The topic has been deleted successfully");
     } catch {
-      toast.error("Failed to delete topic");
+      toast.error("Error", "Failed to delete topic");
     } finally {
       setDeleteTopicId(null);
     }
@@ -108,9 +109,9 @@ export default function DiscussionTab({ projectId }: Props) {
       setTopics((prev) =>
         prev.map((t) => (t._id === topicId ? { ...t, title, content } : t))
       );
-      toast.success("Topic updated");
+      toast.success("Topic Updated", "The topic has been updated");
     } catch {
-      toast.error("Failed to update topic");
+      toast.error("Error", "Failed to update topic");
     }
   };
 
@@ -153,9 +154,9 @@ export default function DiscussionTab({ projectId }: Props) {
         ...prev,
         [topicId]: (prev[topicId] ?? []).filter((c) => c._id !== commentId),
       }));
-      toast.success("Comment deleted");
+      toast.success("Comment Deleted", "Comment deleted successfully");
     } catch {
-      toast.error("Failed to delete comment");
+      toast.error("Error", "Failed to delete comment");
     } finally {
       setDeleteCommentData(null);
     }
@@ -170,9 +171,9 @@ export default function DiscussionTab({ projectId }: Props) {
           c._id === commentId ? { ...c, content } : c
         ),
       }));
-      toast.success("Comment updated");
+      toast.success("Comment Updated", "Comment updated successfully");
     } catch {
-      toast.error("Failed to update comment");
+      toast.error("Error", "Failed to update comment");
     }
   };
 
@@ -412,106 +413,18 @@ function TopicCard({
       </div>
 
       {expanded && (
-        <div className="border-t border-gray-200 bg-gray-50 px-4 py-3 space-y-3">
-          {comments.map((c) => (
-            <CommentRow key={c._id} comment={c} user={user}
-              onUpvote={() => onCommentUpvote(c._id)}
-              onDelete={() => onCommentDelete(c._id)}
-              onEdit={(content) => onCommentEdit(c._id, content)}
-            />
-          ))}
-          <div className="flex gap-2 pt-1">
-            <textarea
-              value={replyContent}
-              onChange={(e) => onReplyChange(e.target.value)}
-              placeholder="Write a reply…"
-              rows={2}
-              className="flex-1 resize-none rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm focus:border-blue-600 focus:outline-none"
-            />
-            <button
-              onClick={onReplySubmit}
-              disabled={!replyContent.trim() || submittingReply}
-              className="self-end rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-40"
-            >
-              {submittingReply ? "…" : "Reply"}
-            </button>
-          </div>
-        </div>
+        <DiscussionComments
+          comments={comments}
+          user={user}
+          onUpvote={onCommentUpvote}
+          onDelete={onCommentDelete}
+          onEdit={onCommentEdit}
+          replyContent={replyContent}
+          onReplyChange={onReplyChange}
+          onReplySubmit={onReplySubmit}
+          submittingReply={submittingReply}
+        />
       )}
-    </div>
-  );
-}
-
-function CommentRow({ comment, user, onUpvote, onDelete, onEdit }: {
-  comment: IComment;
-  user: { _id: string; role: string } | null;
-  onUpvote: () => void;
-  onDelete: () => void;
-  onEdit: (content: string) => void;
-}) {
-  const [isEditing, setIsEditing] = useState(false);
-  const [editContent, setEditContent] = useState(comment.content);
-
-  const upvoted = user ? comment.upvotes.includes(user._id) : false;
-  const authorName = typeof comment.author === "object" ? (comment.author as { name: string }).name : "User";
-  const isAuthor = typeof comment.author === "object" && (comment.author as { _id: string })._id === user?._id;
-
-  return (
-    <div className="flex gap-2">
-      <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gray-200 text-xs font-bold text-gray-500">
-        {authorName.charAt(0).toUpperCase()}
-      </div>
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-gray-900">{authorName}</span>
-          <span className="text-xs text-gray-400">{new Date(comment.createdAt).toLocaleDateString()}</span>
-        </div>
-        
-        {isEditing ? (
-          <div className="mt-1 space-y-2">
-            <textarea
-              value={editContent}
-              onChange={(e) => setEditContent(e.target.value)}
-              rows={2}
-              className="w-full text-sm rounded-lg border border-blue-300 px-2 py-1.5 focus:border-blue-600 focus:outline-none resize-none"
-            />
-            <div className="flex gap-2">
-              <button
-                onClick={() => {
-                  onEdit(editContent);
-                  setIsEditing(false);
-                }}
-                className="text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700"
-              >
-                Save
-              </button>
-              <button
-                onClick={() => {
-                  setEditContent(comment.content);
-                  setIsEditing(false);
-                }}
-                className="text-xs border border-gray-300 text-gray-600 px-2 py-1 rounded hover:bg-gray-50"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        ) : (
-          <p className="text-sm text-gray-500 mt-0.5">{comment.content}</p>
-        )}
-        
-        <div className="flex items-center gap-3 mt-1 text-xs text-gray-400">
-          <button onClick={onUpvote} className={`flex items-center gap-1 ${upvoted ? "text-blue-600" : "hover:text-blue-600"}`}>
-            ▲ {comment.upvotes.length}
-          </button>
-          {!isEditing && isAuthor && (
-            <button onClick={() => setIsEditing(true)} className="hover:text-blue-500">Edit</button>
-          )}
-          {!isEditing && (user?.role === "admin" || isAuthor) && (
-            <button onClick={onDelete} className="hover:text-red-500">Delete</button>
-          )}
-        </div>
-      </div>
     </div>
   );
 }

@@ -1,137 +1,55 @@
-import { useState, useRef, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import { useAuth } from "../../../context/useAuth";
-import api from "../../../services/api";
-import { Spinner } from "../../../components/ui/Spinner";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+import { AssistantRuntimeProvider, useAui, Tools, unstable_Interactables } from "@assistant-ui/react";
+import { useChat } from "@ai-sdk/react";
+import { useAISDKRuntime } from "@assistant-ui/react-ai-sdk";
+import { Thread } from "../../../components/assistant-ui/thread";
+import { staffwiseToolkit } from "../../../components/ui/Toolkits";
+import { ProjectNotepad } from "../../../components/ui/ProjectNotepad";
 
-interface Message {
-  role: "user" | "assistant";
-  content: string;
-}
+// Module-level persistence adapter for project notes
+const persistenceAdapter = {
+  load: () => {
+    const saved = localStorage.getItem("staffwise_interactables");
+    return saved ? JSON.parse(saved) : undefined;
+  },
+  save: (state: any) => {
+    localStorage.setItem("staffwise_interactables", JSON.stringify(state));
+  },
+};
 
-interface Props {
-  projectId: string;
-  projectTitle: string;
-}
-
-export default function AITab({ projectId, projectTitle }: Props) {
+export default function AITab() {
+  const { id } = useParams();
   const { user } = useAuth();
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      role: "assistant",
-      content: `Hi! I'm the AI Assistant for **${projectTitle}**. You can ask me about this project's details, requirements, or anything else related to it.`,
-    },
-  ]);
-  const [input, setInput] = useState("");
-  const [loading, setLoading] = useState(false);
-  const bottomRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  const endpoint = user?.role === "admin" ? "ai/admin/qa" : "ai/query";
+  const apiUrl = `${import.meta.env.VITE_BACKEND_URL || "http://localhost:5000"}/api/${endpoint}`;
 
-  const sendMessage = async () => {
-    const q = input.trim();
-    if (!q || loading) return;
+  const chat = useChat({
+    api: apiUrl,
+    body: { projectId: id },
+    fetch: (input: RequestInfo | URL, init?: RequestInit) => 
+      fetch(input, { ...init, credentials: "include" }),
+  } as any);
+  const runtime = useAISDKRuntime(chat);
 
-    setMessages((prev) => [...prev, { role: "user", content: q }]);
-    setInput("");
-    setLoading(true);
-
-    try {
-      const endpoint = user?.role === "admin" ? "ai/admin/qa" : "ai/query";
-      const { data } = await api.post<{ response: string }>(endpoint, {
-        query: q,
-        projectId
-      });
-      setMessages((prev) => [...prev, { role: "assistant", content: data.response }]);
-    } catch (err: unknown) {
-      const msg =
-        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
-        "Sorry, I couldn't process that. Please try again.";
-      setMessages((prev) => [...prev, { role: "assistant", content: msg }]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
-  };
+  const aui = useAui({
+    tools: Tools({ toolkit: staffwiseToolkit }),
+    unstable_interactables: unstable_Interactables({ persistence: persistenceAdapter }),
+  });
 
   return (
-    <div className="flex flex-col h-full border border-gray-200 rounded-xl bg-gray-50 overflow-hidden">
-      {/* Chat window */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.map((m, i) => (
-          <div
-            key={i}
-            className={`flex gap-3 ${m.role === "user" ? "flex-row-reverse" : "flex-row"}`}
-          >
-            <div
-              className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
-                m.role === "user"
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-200 text-gray-600"
-              }`}
-            >
-              {m.role === "user" ? user?.name?.charAt(0).toUpperCase() : "✦"}
-            </div>
-            <div
-              className={`max-w-[75%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
-                m.role === "user"
-                  ? "bg-blue-600 text-white rounded-tr-sm"
-                  : "bg-white border border-gray-200 text-gray-900 rounded-tl-sm"
-              }`}
-            >
-              {m.role === "assistant" ? (
-                <div className="prose prose-sm max-w-none prose-p:leading-relaxed prose-pre:bg-gray-100 prose-pre:text-gray-800 prose-a:text-blue-600 hover:prose-a:text-blue-500">
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                    {m.content}
-                  </ReactMarkdown>
-                </div>
-              ) : (
-                m.content
-              )}
-            </div>
-          </div>
-        ))}
-
-        {loading && (
-          <div className="flex gap-3">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gray-200 text-xs font-bold text-gray-600">
-              ✦
-            </div>
-            <div className="bg-white border border-gray-200 rounded-2xl rounded-tl-sm px-4 py-3">
-              <Spinner size="sm" />
-            </div>
-          </div>
-        )}
-
-        <div ref={bottomRef} />
-      </div>
-
-      {/* Input */}
-      <div className="flex gap-2 border-t border-gray-200 p-4 bg-white">
-        <textarea
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={handleKeyDown}
-          rows={2}
-          placeholder="Ask something about this project…"
-          className="flex-1 resize-none rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600"
-        />
-        <button
-          onClick={sendMessage}
-          disabled={!input.trim() || loading}
-          className="self-end rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-        >
-          Send
-        </button>
+    <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm flex flex-col h-[600px]">
+      <h2 className="text-lg font-bold text-gray-900 mb-4">Project AI Assistant</h2>
+      <div className="flex-1 flex gap-4 overflow-hidden">
+        <div className="flex-1 border border-gray-100 rounded-lg bg-gray-50/50">
+          <AssistantRuntimeProvider aui={aui} runtime={runtime}>
+            <Thread />
+          </AssistantRuntimeProvider>
+        </div>
+        <div className="flex-1">
+          {id && <ProjectNotepad projectId={id} />}
+        </div>
       </div>
     </div>
   );

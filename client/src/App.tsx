@@ -17,6 +17,7 @@ import Teams from "./pages/admin/Teams";
 import TeamDetail from "./pages/admin/TeamDetail";
 import NewProject from "./pages/admin/NewProject";
 import ManageProject from "./pages/admin/ManageProject";
+import NotFound from "./pages/NotFound";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -108,7 +109,7 @@ export default function App() {
         />
       </Route>
 
-      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      <Route path="*" element={<NotFound />} />
       </Routes>
     </>
   );

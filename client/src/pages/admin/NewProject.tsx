@@ -7,6 +7,8 @@ import { createProject } from "../../services/project.service";
 import { PageHeader } from "../../components/ui/PageHeader";
 import { SkillTag } from "../../components/ui/SkillTag";
 import { useAuth } from "../../context/useAuth";
+import { toast } from "../../utils/toast";
+import { ColorPicker } from "../../components/ui/ColorPicker";
 
 interface NewProjectValues {
   title: string;
@@ -15,6 +17,7 @@ interface NewProjectValues {
   startDate: string;
   endDate: string;
   skillInput: string;
+  color?: string;
 }
 
 const schema = Yup.object({
@@ -61,10 +64,13 @@ export default function NewProject() {
         endDate: values.endDate,
         assignedTeams: [],
         createdBy: id as string,
+        color: values.color,
       });
+      toast.success("Project Created", "New project has been created successfully");
       navigate(`/projects/${project._id}`);
     } catch {
       setServerError("Failed to create project. Please try again.");
+      toast.error("Error", "Failed to create project");
     } finally {
       setSubmitting(false);
     }
@@ -83,6 +89,7 @@ export default function NewProject() {
             startDate: "",
             endDate: "",
             skillInput: "",
+            color: undefined,
           }}
           validationSchema={schema}
           onSubmit={handleSubmit}
@@ -175,6 +182,15 @@ export default function NewProject() {
                     Add
                   </button>
                 </div>
+              </div>
+
+              {/* Theme Color */}
+              <div>
+                <label className="block text-sm font-medium text-[#0f1419] mb-3">Project Theme Color (optional)</label>
+                <ColorPicker 
+                  value={values.color} 
+                  onChange={(color) => setFieldValue("color", color)} 
+                />
               </div>
 
               {serverError && (

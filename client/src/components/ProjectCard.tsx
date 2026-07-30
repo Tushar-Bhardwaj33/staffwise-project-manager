@@ -17,7 +17,14 @@ export function ProjectCard({ project, showManage = false }: ProjectCardProps) {
   const needsTeam = isAdmin && teamCount === 0;
 
   return (
-    <div className="group bg-white border border-gray-200 rounded-xl p-5 hover:shadow-md transition-shadow flex flex-col gap-3">
+    <div 
+      className="group bg-white/70 backdrop-blur-sm border border-white/40 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 rounded-2xl p-6 flex flex-col gap-4 relative overflow-hidden"
+      style={{
+        borderLeftWidth: project.color ? '6px' : '1px',
+        borderLeftColor: project.color || undefined,
+      }}
+    >
+      <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-blue-100/50 to-transparent rounded-bl-full -z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
       {/* Header */}
       <div className="flex items-start justify-between gap-2">
         <ProjectTypeBadge type={project.type} />

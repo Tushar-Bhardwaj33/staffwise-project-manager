@@ -5,6 +5,8 @@ import * as Yup from "yup";
 import { useNavigate, Link } from "react-router-dom";
 import { isAxiosError } from "axios";
 import { useAuth } from "../context/useAuth";
+import { toast } from "../utils/toast";
+import { Input } from "../components/ui/Input";
 
 const registerSchema = Yup.object().shape({
   name: Yup.string().required("Name is required"),
@@ -35,12 +37,16 @@ export default function Register() {
         password: values.password,
         skills: skillsArray,
       });
+      toast.success("Account created!", "Welcome to Staffwise.");
       navigate("/dashboard");
     } catch (err) {
       if (isAxiosError(err)) {
-        setServerError(err.response?.data?.message || "Registration failed");
+        const msg = err.response?.data?.message || "Registration failed";
+        setServerError(msg);
+        toast.error("Registration Failed", msg);
       } else {
         setServerError("An unexpected error occurred");
+        toast.error("Error", "An unexpected error occurred");
       }
     } finally {
       setSubmitting(false);
@@ -69,69 +75,53 @@ export default function Register() {
             onSubmit={(values, { setSubmitting }) => handleSubmit(values, { setSubmitting } as FormikHelpers<FormValues>)}
           >
             {({ isSubmitting }) => (
-              <Form className="space-y-5">
+              <Form className="space-y-4">
                 {serverError && (
                   <div className="bg-red-50 border-l-4 border-red-400 p-4">
                     <p className="text-sm text-red-700">{serverError}</p>
                   </div>
                 )}
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Full Name</label>
-                  <Field
-                    name="name"
-                    type="text"
-                    className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  />
-                  <ErrorMessage name="name" component="p" className="mt-1 text-xs text-red-600" />
-                </div>
+                <Input 
+                  name="name" 
+                  type="text" 
+                  label="Full Name" 
+                  placeholder="e.g. Jane Doe" 
+                />
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Email Address</label>
-                  <Field
-                    name="email"
-                    type="email"
-                    className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  />
-                  <ErrorMessage name="email" component="p" className="mt-1 text-xs text-red-600" />
-                </div>
+                <Input 
+                  name="email" 
+                  type="email" 
+                  label="Email Address" 
+                  placeholder="e.g. jane@company.com" 
+                />
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Employee ID</label>
-                  <Field
-                    name="employeeId"
-                    type="text"
-                    className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  />
-                  <ErrorMessage name="employeeId" component="p" className="mt-1 text-xs text-red-600" />
-                </div>
+                <Input 
+                  name="employeeId" 
+                  type="text" 
+                  label="Employee ID" 
+                  placeholder="e.g. EMP-001" 
+                />
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Password</label>
-                  <Field
-                    name="password"
-                    type="password"
-                    className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  />
-                  <ErrorMessage name="password" component="p" className="mt-1 text-xs text-red-600" />
-                </div>
+                <Input 
+                  name="password" 
+                  type="password" 
+                  label="Password" 
+                  placeholder="Must be at least 7 characters" 
+                />
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Skills (comma-separated)</label>
-                  <Field
-                    name="skills"
-                    type="text"
-                    placeholder="e.g. React, Node.js, Design"
-                    className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  />
-                  <ErrorMessage name="skills" component="p" className="mt-1 text-xs text-red-600" />
-                </div>
+                <Input 
+                  name="skills" 
+                  type="text" 
+                  label="Skills (comma-separated)" 
+                  placeholder="e.g. React, Node.js, Design" 
+                />
 
                 <div className="pt-2">
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+                    className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-[#20beff] hover:bg-[#0f9fdb] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#20beff] disabled:opacity-50 transition-colors"
                   >
                     {isSubmitting ? "Creating account..." : "Sign up"}
                   </button>

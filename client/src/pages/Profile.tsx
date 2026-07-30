@@ -6,6 +6,7 @@ import { updateProfile } from "../services/users.services";
 import { PageHeader } from "../components/ui/PageHeader";
 import { SkillTag } from "../components/ui/SkillTag";
 import { RoleBadge } from "../components/ui/Badge";
+import { UserCard } from "../components/ui/UserCard";
 
 interface ProfileFormValues {
   name: string;
@@ -57,18 +58,8 @@ export default function Profile() {
 
       <div className="bg-white border border-[#e3e8ee] rounded-xl p-6 mb-6">
         {/* Avatar + meta */}
-        <div className="flex items-center gap-4 mb-6">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#20beff] text-white text-2xl font-bold">
-            {user.name.charAt(0).toUpperCase()}
-          </div>
-          <div>
-            <p className="text-base font-semibold text-[#0f1419]">{user.name}</p>
-            <p className="text-sm text-[#9ca3af]">{user.email}</p>
-            <div className="mt-1 flex items-center gap-2">
-              <RoleBadge role={user.role} />
-              <span className="text-xs text-[#9ca3af]">ID: {user.employeeId}</span>
-            </div>
-          </div>
+        <div className="mb-6 flex justify-center">
+          <UserCard user={user} />
         </div>
 
         {/* Read-only info */}

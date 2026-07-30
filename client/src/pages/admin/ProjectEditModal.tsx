@@ -5,7 +5,8 @@ import * as Yup from "yup";
 import { updateProject } from "../../services/project.service";
 import { SkillTag } from "../../components/ui/SkillTag";
 import type { IProject } from "../../types/project.type";
-import { toast } from "react-toastify";
+import { toast } from "../../utils/toast";
+import { ColorPicker } from "../../components/ui/ColorPicker";
 
 interface ProjectEditModalProps {
   isOpen: boolean;
@@ -21,6 +22,7 @@ interface EditProjectValues {
   startDate: string;
   endDate: string;
   skillInput: string;
+  color?: string;
 }
 
 const schema = Yup.object({
@@ -60,11 +62,12 @@ export function ProjectEditModal({ isOpen, project, onClose, onSuccess }: Projec
         requiredSkills: skills,
         startDate: values.startDate,
         endDate: values.endDate,
+        color: values.color,
       });
-      toast.success("Project updated successfully");
+      toast.success("Project Updated", "Project updated successfully");
       onSuccess(updated);
     } catch {
-      toast.error("Failed to update project. Please try again.");
+      toast.error("Error", "Failed to update project. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -92,6 +95,7 @@ export function ProjectEditModal({ isOpen, project, onClose, onSuccess }: Projec
             startDate: project.startDate.split('T')[0],
             endDate: project.endDate.split('T')[0],
             skillInput: "",
+            color: project.color,
           }}
           validationSchema={schema}
           onSubmit={handleSubmit}
@@ -183,6 +187,15 @@ export function ProjectEditModal({ isOpen, project, onClose, onSuccess }: Projec
                     Add
                   </button>
                 </div>
+              </div>
+
+              {/* Theme Color */}
+              <div>
+                <label className="block text-sm font-medium text-[#0f1419] mb-3">Project Theme Color (optional)</label>
+                <ColorPicker 
+                  value={values.color} 
+                  onChange={(color) => setFieldValue("color", color)} 
+                />
               </div>
 
               <div className="mt-6 flex gap-3 justify-end">

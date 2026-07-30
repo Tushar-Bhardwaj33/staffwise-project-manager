@@ -1,5 +1,5 @@
 import { StateSchema } from "@langchain/langgraph";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 export const AdminAgentState = new StateSchema({
   query: z.string(),

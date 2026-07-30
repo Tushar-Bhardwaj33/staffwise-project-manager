@@ -7,6 +7,7 @@ import { EmptyState } from "../../components/ui/EmptyState";
 import { PageHeader } from "../../components/ui/PageHeader";
 import { SkillTag } from "../../components/ui/SkillTag";
 import { RoleBadge } from "../../components/ui/Badge";
+import { ContactCard } from "../../components/ui/ContactCard";
 import { useMemo } from "react";
 
 export default function Employees() {
@@ -58,58 +59,10 @@ export default function Employees() {
       {filtered.length === 0 ? (
         <EmptyState title="No employees found" description={search ? `No results for "${search}"` : "No employees yet."} />
       ) : (
-        <div className="bg-white border border-[#e3e8ee] rounded-xl overflow-hidden">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-[#e3e8ee] bg-[#f7f9fb]">
-                <th className="text-left px-5 py-3 text-xs font-semibold text-[#9ca3af] uppercase tracking-wide">Name</th>
-                <th className="text-left px-5 py-3 text-xs font-semibold text-[#9ca3af] uppercase tracking-wide hidden md:table-cell">Employee ID</th>
-                <th className="text-left px-5 py-3 text-xs font-semibold text-[#9ca3af] uppercase tracking-wide hidden lg:table-cell">Skills</th>
-                <th className="text-left px-5 py-3 text-xs font-semibold text-[#9ca3af] uppercase tracking-wide">Role</th>
-                <th className="px-5 py-3" />
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#e3e8ee]">
-              {filtered.map((u) => (
-                <tr key={u._id} className="hover:bg-[#f7f9fb] transition-colors">
-                  <td className="px-5 py-3">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#20beff] text-white text-xs font-bold">
-                        {u.name.charAt(0).toUpperCase()}
-                      </div>
-                      <div>
-                        <p className="font-medium text-[#0f1419]">{u.name}</p>
-                        <p className="text-xs text-[#9ca3af]">{u.email}</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-5 py-3 font-mono text-[#5b6b79] hidden md:table-cell">{u.employeeId}</td>
-                  <td className="px-5 py-3 hidden lg:table-cell">
-                    <div className="flex flex-wrap gap-1">
-                      {u.skills?.slice(0, 3).map((s) => <SkillTag key={s} skill={s} />)}
-                      {(u.skills?.length ?? 0) > 3 && (
-                        <span className="text-xs text-[#9ca3af]">+{u.skills.length - 3}</span>
-                      )}
-                      {(!u.skills || u.skills.length === 0) && (
-                        <span className="text-xs text-[#9ca3af]">—</span>
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-5 py-3">
-                    <RoleBadge role={u.role} />
-                  </td>
-                  <td className="px-5 py-3 text-right">
-                    <Link
-                      to={`/admin/employees/${u._id}`}
-                      className="text-xs font-medium text-[#20beff] hover:underline"
-                    >
-                      View →
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filtered.map((u) => (
+            <ContactCard key={u._id} user={u} />
+          ))}
         </div>
       )}
     </div>

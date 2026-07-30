@@ -5,6 +5,8 @@ import * as Yup from "yup";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { isAxiosError } from "axios";
 import { useAuth } from "../context/useAuth";
+import { toast } from "../utils/toast";
+import { Input } from "../components/ui/Input";
 
 const loginSchema = Yup.object().shape({
   email: Yup.string().email("Invalid email").required("Required"),
@@ -25,12 +27,16 @@ export default function Login() {
     setServerError("");
     try {
       await login(values.email, values.password);
+      toast.success("Welcome back!", "You have successfully signed in.");
       navigate(from, { replace: true });
     } catch (err) {
       if (isAxiosError(err)) {
-        setServerError(err.response?.data?.message || "Login failed");
+        const msg = err.response?.data?.message || "Login failed";
+        setServerError(msg);
+        toast.error("Login Failed", msg);
       } else {
         setServerError("An unexpected error occurred");
+        toast.error("Error", "An unexpected error occurred");
       }
     } finally {
       setSubmitting(false);
@@ -58,42 +64,32 @@ export default function Login() {
           onSubmit={handleSubmit}
         >
           {({ isSubmitting }) => (
-            <Form className="space-y-6">
+            <Form className="space-y-4">
               {serverError && (
                 <div className="bg-red-50 border-l-4 border-red-400 p-4">
                   <p className="text-sm text-red-700">{serverError}</p>
                 </div>
               )}
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Email address</label>
-                <div className="mt-1">
-                  <Field
-                    name="email"
-                    type="email"
-                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  />
-                  <ErrorMessage name="email" component="p" className="mt-1 text-xs text-red-600" />
-                </div>
-              </div>
+              <Input 
+                name="email" 
+                type="email" 
+                label="Email address" 
+                placeholder="Enter your email" 
+              />
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Password</label>
-                <div className="mt-1">
-                  <Field
-                    name="password"
-                    type="password"
-                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  />
-                  <ErrorMessage name="password" component="p" className="mt-1 text-xs text-red-600" />
-                </div>
-              </div>
+              <Input 
+                name="password" 
+                type="password" 
+                label="Password" 
+                placeholder="Enter your password" 
+              />
 
               <div>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+                  className="w-full mt-4 flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-[#20beff] hover:bg-[#0f9fdb] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#20beff] disabled:opacity-50 transition-colors"
                 >
                   {isSubmitting ? "Signing in..." : "Sign in"}
                 </button>

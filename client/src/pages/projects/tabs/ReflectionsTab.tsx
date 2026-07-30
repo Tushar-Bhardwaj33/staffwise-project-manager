@@ -10,8 +10,8 @@ import {
 } from "../../../services/history.service";
 import type { IEmployeeReflection, IAdminValidation } from "../../../types/history.type";
 import { Spinner } from "../../../components/ui/Spinner";
-import { toast } from "react-toastify";
 import { Formik, Form, Field, ErrorMessage } from "formik";
+import { toast } from "../../../utils/toast";
 import * as Yup from "yup";
 import { SkillTag } from "../../../components/ui/SkillTag";
 import { getAllUsers } from "../../../services/users.services";
@@ -101,9 +101,9 @@ function EmployeeReflectionView({ projectId, userId }: { projectId: string; user
                   skillsGainedOrUsed: skills,
                 });
                 setReflection(r);
-                toast.success("Reflection submitted successfully");
+                toast.success("Reflection Submitted", "Reflection submitted successfully");
               } catch {
-                toast.error("Failed to submit reflection");
+                toast.error("Error", "Failed to submit reflection");
               } finally {
                 setSubmitting(false);
               }
@@ -410,9 +410,9 @@ function AdminValidationRow({
                     qualitativeNote: values.qualitativeNote,
                   });
                   setValidation(v);
-                  toast.success("Validation submitted");
+                  toast.success("Validation Submitted", "Validation submitted successfully");
                 } catch {
-                  toast.error("Failed to submit validation");
+                  toast.error("Error", "Failed to submit validation");
                 } finally {
                   setSubmitting(false);
                 }
