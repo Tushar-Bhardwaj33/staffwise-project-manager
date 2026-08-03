@@ -36,7 +36,7 @@ const buildContextBlock = (state: any) => {
 
 const MAX_TOOL_ROUNDS = 4;
 
-export const qa: typeof AdminAgentState.Node = async (state) => {
+export const qa = async (state: typeof AdminAgentState.State) => {
   // True "org-wide" question: an admin with no specific project or employee already
   // resolved. Instead of dumping every project/employee/team into the prompt, give the
   // model tools so it only fetches the data this particular question needs.

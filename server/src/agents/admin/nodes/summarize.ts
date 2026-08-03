@@ -23,7 +23,7 @@ Write a concise, conversational summary of this project for them.`;
   return prompt;
 };
 
-export const summarize: typeof AdminAgentState.Node = async (state) => {
+export const summarize = async (state: typeof AdminAgentState.State) => {
   const result = await adminLLM.invoke([
     { role: "system", content: "You are a helpful, conversational AI. You summarize staffing projects clearly and concisely, using the person's name to make it personal." },
     { role: "user", content: buildPrompt(state) },
