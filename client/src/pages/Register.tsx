@@ -46,7 +46,7 @@ export default function Register() {
       await register({
         name: values.name,
         email: values.email,
-        employeeId: values.employeeId,
+        employeeId: Number(values.employeeId),
         password: values.password,
         skills: skillsArray,
       });

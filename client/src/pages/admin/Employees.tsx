@@ -34,7 +34,7 @@ export default function Employees() {
     return users.filter((u) => 
       u.name.toLowerCase().includes(q) ||
       u.email.toLowerCase().includes(q) ||
-      u.employeeId.toLowerCase().includes(q)
+      String(u.employeeId).includes(q)
     );
   }, [users, search]);
   
