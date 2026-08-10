@@ -79,9 +79,9 @@ export default function Register() {
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10 border border-gray-100">
           <Formik
-            initialValues={{ name: "", email: "", employeeId: "", password: "", skills: "" }}
+            initialValues={{ name: "", email: "", employeeId: "" as unknown as number, password: "", skills: "" }}
             validationSchema={registerSchema}
-            onSubmit={(values, { setSubmitting }) => handleSubmit(values, { setSubmitting } as FormikHelpers<FormValues>)}
+            onSubmit={(values, { setSubmitting }) => handleSubmit(values as FormValues, { setSubmitting } as FormikHelpers<FormValues>)}
           >
             {({ isSubmitting }) => (
               <Form className="space-y-5">
