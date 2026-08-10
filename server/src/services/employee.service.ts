@@ -5,10 +5,10 @@ import { Types } from "mongoose";
 
 const escapeRegex = (str: string) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-export const findEmployeeByIdentifier = async (identifier: string) => {
+export const findEmployeeByIdentifier = async (identifier: number) => {
   const employee = await User.findOne({
     role: "employee",
-    $or: [{ employeeId: identifier }, { name: new RegExp(escapeRegex(identifier), "i") }],
+    $or: [{ employeeId: identifier }, { name: new RegExp(escapeRegex(identifier.toString()), "i") }],
   });
   if (!employee) {
     throw new Error("EMPLOYEE_NOT_FOUND");

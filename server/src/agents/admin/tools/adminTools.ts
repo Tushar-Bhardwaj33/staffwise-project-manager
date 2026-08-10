@@ -75,7 +75,7 @@ export const getProjectDetailsTool = tool(
 );
 
 export const findEmployeeTool = tool(
-  async ({ identifier }: { identifier: string }) => {
+  async ({ identifier }: { identifier: number }) => {
     try {
       const employee: any = await findEmployeeByIdentifier(identifier);
       const projects = await getProjectsForEmployee(employee._id.toString());

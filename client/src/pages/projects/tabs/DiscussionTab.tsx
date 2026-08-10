@@ -329,7 +329,9 @@ function TopicCard({
   const [editContent, setEditContent] = useState(topic.content);
 
   const upvoted = user ? topic.upvotes.includes(user._id) : false;
-  const isAuthor = typeof topic.author === "object" && (topic.author as { _id: string })._id === user?._id;
+  const isAuthor = typeof topic.author === "object" 
+    ? (topic.author as { _id: string })._id === user?._id 
+    : topic.author === user?._id;
 
   return (
     <div className={`bg-white border rounded-xl overflow-hidden transition-all ${topic.isPinned ? "border-amber-300" : "border-gray-200"}`}>
@@ -391,7 +393,12 @@ function TopicCard({
                 <div className="flex items-center gap-3 mt-2 text-xs text-gray-400">
                   <span>{new Date(topic.createdAt).toLocaleDateString()}</span>
                   <button onClick={onExpand} className="hover:text-blue-600">
-                    {comments.length} repl{comments.length !== 1 ? "ies" : "y"}
+                    {(() => {
+                      const count = expanded 
+                        ? comments.reduce((acc, c) => acc + 1 + (c.replies?.length || 0), 0)
+                        : (topic.replyCount ?? 0);
+                      return `${count} repl${count !== 1 ? "ies" : "y"}`;
+                    })()}
                   </button>
                   {isAuthor && (
                     <button onClick={() => setIsEditing(true)} className="hover:text-blue-500">Edit</button>

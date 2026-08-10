@@ -5,13 +5,13 @@ interface SkillTagProps {
 
 export function SkillTag({ skill, onRemove }: SkillTagProps) {
   return (
-    <span className="inline-flex items-center gap-1 rounded-full bg-[#e0f3ff] px-2.5 py-0.5 text-xs font-medium text-[#0284c7]">
-      {skill}
+    <span className="inline-flex items-center gap-1 rounded-full bg-[#e0f3ff] px-2.5 py-0.5 text-xs font-medium text-[#0284c7] max-w-full">
+      <span className="truncate">{skill}</span>
       {onRemove && (
         <button
           type="button"
           onClick={onRemove}
-          className="text-[#0284c7] hover:text-[#0369a1] leading-none"
+          className="text-[#0284c7] hover:text-[#0369a1] leading-none shrink-0"
           aria-label={`Remove ${skill}`}
         >
           ×

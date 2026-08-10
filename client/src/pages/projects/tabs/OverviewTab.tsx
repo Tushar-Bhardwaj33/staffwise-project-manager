@@ -129,7 +129,7 @@ export default function OverviewTab({ project }: Props) {
                 {preference.interest === "interested" ? "✓ Interested" : "✗ Not interested"}
               </span>
               {preference.reason && (
-                <span className="text-sm text-gray-400">— {preference.reason}</span>
+                <span className="text-sm text-gray-400 break-words whitespace-pre-wrap line-clamp-3">— {preference.reason}</span>
               )}
               <button
                 onClick={() => { setPreference(null); setShowReasonInput(false); }}

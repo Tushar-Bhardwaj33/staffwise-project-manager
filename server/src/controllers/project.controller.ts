@@ -38,6 +38,13 @@ export const createProject = async (req: Request, res: Response) => {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
+    const existingProject = await Project.findOne({ 
+      title: { $regex: new RegExp(`^${title.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')}$`, "i") } 
+    });
+    if (existingProject) {
+      return res.status(400).json({ message: "A project with this name already exists" });
+    }
+
     const project = await Project.create({
       title,
       description,
@@ -59,6 +66,16 @@ export const updateProject = async (req: Request, res: Response) => {
   try {
     const projectId = req.params.id;
     const { title, description, type, requiredSkills, startDate, endDate } = req.body;
+
+    if (title) {
+      const existingProject = await Project.findOne({ 
+        title: { $regex: new RegExp(`^${title.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')}$`, "i") },
+        _id: { $ne: projectId }
+      });
+      if (existingProject) {
+        return res.status(400).json({ message: "A project with this name already exists" });
+      }
+    }
 
     const project = await Project.findByIdAndUpdate(
       projectId,

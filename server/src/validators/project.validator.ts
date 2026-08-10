@@ -7,7 +7,11 @@ export const createProjectSchema = yup.object({
     .mixed<"personal" | "company" | "product" | "client">()
     .oneOf(["personal", "company", "product", "client"], "Invalid project type")
     .required("Type is required"),
-  requiredSkills: yup.array().of(yup.string().trim()).default([]),
+  requiredSkills: yup.array().of(
+    yup.string().trim()
+      .max(30, "Tag cannot exceed 30 characters")
+      .matches(/^[a-zA-Z0-9\s.\-+#]+$/, "Tag contains invalid characters")
+  ).default([]),
   startDate: yup.date().required("Start date is required"),
   endDate: yup
     .date()

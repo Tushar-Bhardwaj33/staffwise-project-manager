@@ -205,8 +205,12 @@ export const createComment = async (req: Request<{ topicId: string }>, res: Resp
     };
 
     const comment = await Comment.create(commentData);
+    const populatedComment = await comment.populate([
+      { path: "author", select: "name avatar" },
+      { path: "replyingToAuthor", select: "name" }
+    ]);
 
-    return res.status(201).json(comment);
+    return res.status(201).json(populatedComment);
   } catch (err) {
     console.error("Error creating comment:", err);
     return res.status(500).json({ message: "Internal server error" });
@@ -309,7 +313,19 @@ export const listTopics = async (req: Request<{ id: string }>, res: Response) =>
       .limit(limit)
       .lean();
 
-    return res.status(200).json({ topics, page, limit });
+    const topicIds = topics.map(t => t._id);
+    const commentCounts = await Comment.aggregate([
+      { $match: { topic: { $in: topicIds } } },
+      { $group: { _id: "$topic", count: { $sum: 1 } } }
+    ]);
+    
+    const countMap = new Map(commentCounts.map(c => [c._id.toString(), c.count]));
+    const topicsWithCount = topics.map(t => ({
+      ...t,
+      replyCount: countMap.get(t._id.toString()) || 0
+    }));
+
+    return res.status(200).json({ topics: topicsWithCount, page, limit });
   } catch (err) {
     console.error("Error listing topics:", err);
     return res.status(500).json({ message: "Internal server error" });
