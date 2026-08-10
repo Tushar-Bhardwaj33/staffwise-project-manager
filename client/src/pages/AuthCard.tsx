@@ -56,7 +56,10 @@ const AuthCard = ({ initialMode = "login", onAuthSuccess }: AuthCardProps) => {
     setError(null);
     setLoading(true);
     try {
-      const { user } = await register(registerForm);
+      const { user } = await register({
+        ...registerForm,
+        employeeId: Number(registerForm.employeeId)
+      });
       onAuthSuccess?.(user);
     } catch (err) {
       setError(extractErrorMessage(err, "Couldn't create your account. Double check your details."));
