@@ -13,7 +13,11 @@ interface ProfileFormValues {
 }
 
 const profileSchema = Yup.object({
-  name: Yup.string().trim().min(2, "Name is too short").required("Name is required"),
+  name: Yup.string().trim()
+    .min(2, "Name must be at least 2 characters")
+    .max(50, "Name cannot exceed 50 characters")
+    .matches(/^[a-zA-Z\s]+$/, "Name can only contain alphabets and spaces")
+    .required("Name is required"),
   skillInput: Yup.string(),
 });
 

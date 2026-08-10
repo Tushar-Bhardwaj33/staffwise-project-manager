@@ -7,9 +7,18 @@ import { isAxiosError } from "axios";
 import { useAuth } from "../context/useAuth";
 
 const registerSchema = Yup.object().shape({
-  name: Yup.string().required("Name is required"),
+  name: Yup.string()
+    .min(2, "Name must be at least 2 characters")
+    .max(50, "Name cannot exceed 50 characters")
+    .matches(/^[a-zA-Z\s]+$/, "Name can only contain alphabets and spaces")
+    .required("Name is required"),
   email: Yup.string().email("Invalid email").required("Email is required"),
-  employeeId: Yup.string().required("Employee ID is required"),
+  employeeId: Yup.number()
+    .typeError("Employee ID must be a number")
+    .integer("Employee ID must be an integer")
+    .min(1, "Employee ID must be at least 1")
+    .max(2147483647, "Employee ID cannot exceed 2147483647")
+    .required("Employee ID is required"),
   password: Yup.string().min(7, "Must be at least 7 characters").required("Password is required"),
   skills: Yup.string(),
 });
@@ -100,7 +109,7 @@ export default function Register() {
                   <label className="block text-sm font-medium text-gray-700">Employee ID</label>
                   <Field
                     name="employeeId"
-                    type="text"
+                    type="number"
                     className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   />
                   <ErrorMessage name="employeeId" component="p" className="mt-1 text-xs text-red-600" />

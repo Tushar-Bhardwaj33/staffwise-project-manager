@@ -15,9 +15,14 @@ export const register = async (req: Request, res: Response) => {
   try {
     const { name, email, employeeId, password, skills } = req.body;
 
-    const existing = await User.findOne({ $or: [{ email }, { employeeId }] });
-    if (existing) {
-      return res.status(409).json({ message: "Email or employeeId already in use" });
+    const existingEmail = await User.findOne({ email });
+    if (existingEmail) {
+      return res.status(409).json({ message: "Email already in use" });
+    }
+
+    const existingEmployeeId = await User.findOne({ employeeId });
+    if (existingEmployeeId) {
+      return res.status(409).json({ message: "Employee ID already in use" });
     }
 
     const passwordHash = await hashPassword(password);

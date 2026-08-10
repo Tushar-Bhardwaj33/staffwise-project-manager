@@ -3,7 +3,7 @@ export interface IUser {
   name: string;
   email: string;
   role: "admin" | "employee";
-  employeeId: string;
+  employeeId: number;
   skills: string[];
   createdAt: string;
   updatedAt: string;
