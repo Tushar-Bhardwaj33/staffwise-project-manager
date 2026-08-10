@@ -58,7 +58,7 @@ export default function Employees() {
       {filtered.length === 0 ? (
         <EmptyState title="No employees found" description={search ? `No results for "${search}"` : "No employees yet."} />
       ) : (
-        <div className="bg-white border border-[#e3e8ee] rounded-xl overflow-hidden">
+        <div className="bg-white border border-[#e3e8ee] rounded-xl overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-[#e3e8ee] bg-[#f7f9fb]">

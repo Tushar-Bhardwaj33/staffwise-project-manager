@@ -4,6 +4,16 @@ import { AIQueryLog } from "../models/AIQueryLog.model.js";
 import { User } from "../models/User.model.js";
 import { getProjectsForEmployee } from "../services/employee.service.js";
 
+function extractTextFromResponse(response: any): string {
+  if (typeof response === "string") return response;
+  if (Array.isArray(response)) {
+    const textBlock = response.find((block: any) => block.type === "text");
+    if (textBlock && textBlock.text) return textBlock.text;
+    return JSON.stringify(response);
+  }
+  return String(response || "");
+}
+
 export const askAdminSummary = async (req: Request, res: Response) => {
   try {
     const { query, projectId } = req.body;
@@ -14,7 +24,7 @@ export const askAdminSummary = async (req: Request, res: Response) => {
 
     const user = await User.findById(userId);
     const result = await adminGraph.invoke({ query, projectId, currentUser: user });
-    const response = result.response ?? "";
+    const response = extractTextFromResponse(result.response);
 
     await AIQueryLog.create({
       user: userId,
@@ -53,7 +63,7 @@ export const askAdminQa = async (req: Request, res: Response) => {
 
     const user = await User.findById(userId);
     const result = await adminQaGraph.invoke({ query, projectId, employeeIdentifier, currentUser: user, history });
-    const response = result.response ?? "";
+    const response = extractTextFromResponse(result.response);
 
     await AIQueryLog.create(
       projectId
@@ -107,7 +117,7 @@ export const askEmployeeQuery = async (req: Request, res: Response) => {
       history 
     });
     
-    const response = result.response ?? "";
+    const response = extractTextFromResponse(result.response);
 
     await AIQueryLog.create(
       projectId

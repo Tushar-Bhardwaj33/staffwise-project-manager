@@ -13,6 +13,7 @@ export interface ITopic {
   isPinned: boolean;
   createdAt: string;
   updatedAt: string;
+  replyCount?: number;
 }
 
 export interface IComment {

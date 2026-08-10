@@ -19,7 +19,13 @@ const registerSchema = Yup.object().shape({
     .min(1, "Employee ID must be at least 1")
     .max(2147483647, "Employee ID cannot exceed 2147483647")
     .required("Employee ID is required"),
-  password: Yup.string().min(7, "Must be at least 7 characters").required("Password is required"),
+  password: Yup.string()
+    .min(8, "Must be at least 8 characters")
+    .matches(/(?=.*[a-z])/, "Must contain at least one lowercase letter")
+    .matches(/(?=.*[A-Z])/, "Must contain at least one uppercase letter")
+    .matches(/(?=.*\d)/, "Must contain at least one number")
+    .matches(/(?=.*[@$!%*?&])/, "Must contain at least one special character")
+    .required("Password is required"),
   skills: Yup.string(),
 });
 

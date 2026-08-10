@@ -12,7 +12,7 @@ export interface ICandidateScore {
   employee: {
     id: string;
     name: string;
-    employeeId: string;
+    employeeId: number;
     skills: string[];
   };
   score: number;

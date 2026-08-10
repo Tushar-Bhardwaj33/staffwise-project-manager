@@ -27,7 +27,9 @@ export function ProgressBar({ startDate, endDate }: ProgressBarProps) {
       pct = 100;
       status = "completed";
     } else {
-      pct = Math.min(100, Math.round(((now - start) / total) * 100));
+      const exactPct = ((now - start) / total) * 100;
+      // If it's active, guarantee at least 1% so the bar is visibly started
+      pct = Math.max(1, Math.min(100, Math.round(exactPct)));
     }
 
     return { pct, status };

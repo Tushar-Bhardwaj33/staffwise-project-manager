@@ -41,10 +41,25 @@ const fieldClass =
 
 export function ProjectEditModal({ isOpen, project, onClose, onSuccess }: ProjectEditModalProps) {
   const [skills, setSkills] = useState<string[]>(project.requiredSkills || []);
+  const [skillError, setSkillError] = useState("");
 
   const addSkill = (input: string, setFieldValue: (f: string, v: string) => void) => {
+    setSkillError("");
     const trimmed = input.trim();
-    if (trimmed && !skills.includes(trimmed)) setSkills((prev) => [...prev, trimmed]);
+    if (!trimmed) return;
+    if (trimmed.length > 30) {
+      setSkillError("Tag cannot exceed 30 characters");
+      return;
+    }
+    if (!/^[a-zA-Z0-9\s.\-+#]+$/.test(trimmed)) {
+      setSkillError("Tag contains invalid characters");
+      return;
+    }
+    if (skills.includes(trimmed)) {
+      setFieldValue("skillInput", "");
+      return;
+    }
+    setSkills((prev) => [...prev, trimmed]);
     setFieldValue("skillInput", "");
   };
 
@@ -63,8 +78,8 @@ export function ProjectEditModal({ isOpen, project, onClose, onSuccess }: Projec
       });
       toast.success("Project updated successfully");
       onSuccess(updated);
-    } catch {
-      toast.error("Failed to update project. Please try again.");
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Failed to update project. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -183,6 +198,7 @@ export function ProjectEditModal({ isOpen, project, onClose, onSuccess }: Projec
                     Add
                   </button>
                 </div>
+                {skillError && <p className="mt-1 text-xs text-red-500">{skillError}</p>}
               </div>
 
               <div className="mt-6 flex gap-3 justify-end">

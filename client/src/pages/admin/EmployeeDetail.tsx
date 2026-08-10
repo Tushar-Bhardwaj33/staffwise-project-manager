@@ -10,8 +10,10 @@ import { RoleBadge } from "../../components/ui/Badge";
 import { ProjectCard } from "../../components/ProjectCard";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { ConfirmModal } from "../../components/ui/ConfirmModal";
+import { useAuth } from "../../context/useAuth";
 
 export default function EmployeeDetail() {
+  const { user: currentUser } = useAuth();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [user, setUser] = useState<IUser | null>(null);
@@ -106,29 +108,31 @@ export default function EmployeeDetail() {
           </div>
         </div>
 
-        {/* Role toggle */}
-        <div className="border-t border-[#e3e8ee] pt-4">
-          <p className="text-sm text-[#5b6b79] mb-3">
-            {user.role === "admin"
-              ? "This employee has admin privileges. Demote them to remove admin access."
-              : "Promote this employee to give them admin access."}
-          </p>
-          <button
-            onClick={() => setShowConfirmToggle(true)}
-            disabled={toggling}
-            className={`rounded-lg px-4 py-2 text-sm font-semibold transition-colors disabled:opacity-60 ${
-              user.role === "admin"
-                ? "bg-red-50 text-red-600 hover:bg-red-100 border border-red-200"
-                : "bg-purple-50 text-purple-700 hover:bg-purple-100 border border-purple-200"
-            }`}
-          >
-            {toggling
-              ? "Updating…"
-              : user.role === "admin"
-              ? "Demote to Employee"
-              : "Promote to Admin"}
-          </button>
-        </div>
+        {/* Role toggle (hidden if viewing self) */}
+        {currentUser?._id !== user._id && (
+          <div className="border-t border-[#e3e8ee] pt-4">
+            <p className="text-sm text-[#5b6b79] mb-3">
+              {user.role === "admin"
+                ? "This employee has admin privileges. Demote them to remove admin access."
+                : "Promote this employee to give them admin access."}
+            </p>
+            <button
+              onClick={() => setShowConfirmToggle(true)}
+              disabled={toggling}
+              className={`rounded-lg px-4 py-2 text-sm font-semibold transition-colors disabled:opacity-60 ${
+                user.role === "admin"
+                  ? "bg-red-50 text-red-600 hover:bg-red-100 border border-red-200"
+                  : "bg-purple-50 text-purple-700 hover:bg-purple-100 border border-purple-200"
+              }`}
+            >
+              {toggling
+                ? "Updating…"
+                : user.role === "admin"
+                ? "Demote to Employee"
+                : "Promote to Admin"}
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Project history */}

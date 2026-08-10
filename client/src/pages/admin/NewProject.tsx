@@ -39,10 +39,25 @@ export default function NewProject() {
   const navigate = useNavigate();
   const [skills, setSkills] = useState<string[]>([]);
   const [serverError, setServerError] = useState("");
+  const [skillError, setSkillError] = useState("");
 
   const addSkill = (input: string, setFieldValue: (f: string, v: string) => void) => {
+    setSkillError("");
     const trimmed = input.trim();
-    if (trimmed && !skills.includes(trimmed)) setSkills((prev) => [...prev, trimmed]);
+    if (!trimmed) return;
+    if (trimmed.length > 30) {
+      setSkillError("Tag cannot exceed 30 characters");
+      return;
+    }
+    if (!/^[a-zA-Z0-9\s.\-+#]+$/.test(trimmed)) {
+      setSkillError("Tag contains invalid characters");
+      return;
+    }
+    if (skills.includes(trimmed)) {
+      setFieldValue("skillInput", "");
+      return;
+    }
+    setSkills((prev) => [...prev, trimmed]);
     setFieldValue("skillInput", "");
   };
 
@@ -63,8 +78,8 @@ export default function NewProject() {
         createdBy: id as string,
       });
       navigate(`/projects/${project._id}`);
-    } catch {
-      setServerError("Failed to create project. Please try again.");
+    } catch (err: any) {
+      setServerError(err.response?.data?.message || "Failed to create project. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -175,6 +190,7 @@ export default function NewProject() {
                     Add
                   </button>
                 </div>
+                {skillError && <p className="mt-1 text-xs text-red-500">{skillError}</p>}
               </div>
 
               {serverError && (
