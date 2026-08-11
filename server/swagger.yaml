@@ -24,14 +24,14 @@ tags:
   - name: Discussions
   - name: History
   - name: AI
-  - name: Admin
 
 components:
   securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: token
+      description: JWT issued on register/login and stored in a `token` cookie (httpOnly).
 
   schemas:
     Error:
@@ -58,8 +58,8 @@ components:
           type: string
           enum: [admin, employee]
         employeeId:
-          type: string
-          example: "1433"
+          type: number
+          example: 1433
         skills:
           type: array
           items:
@@ -141,7 +141,22 @@ components:
         project:
           type: string
         employee:
-          type: string
+          oneOf:
+            - type: string
+            - type: object
+              properties:
+                _id:
+                  type: string
+                name:
+                  type: string
+                email:
+                  type: string
+                employeeId:
+                  type: number
+                skills:
+                  type: array
+                  items:
+                    type: string
         interest:
           type: string
           enum: [interested, not-interested]
@@ -289,7 +304,17 @@ components:
           type: string
           nullable: true
         author:
-          type: string
+          oneOf:
+            - type: string
+            - type: object
+              properties:
+                _id:
+                  type: string
+                name:
+                  type: string
+                avatar:
+                  type: string
+                  nullable: true
         content:
           type: string
         upvotes:
@@ -299,6 +324,47 @@ components:
         createdAt:
           type: string
           format: date-time
+
+    ThreadedComment:
+      allOf:
+        - $ref: '#/components/schemas/DiscussionComment'
+        - type: object
+          properties:
+            replies:
+              type: array
+              items:
+                $ref: '#/components/schemas/DiscussionComment'
+
+    Candidate:
+      type: object
+      properties:
+        employee:
+          type: object
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+            employeeId:
+              type: number
+            skills:
+              type: array
+              items:
+                type: string
+        score:
+          type: number
+        matchedSkills:
+          type: array
+          items:
+            type: string
+        preference:
+          type: string
+          enum: [interested, not-interested, no-response]
+        available:
+          type: boolean
+        explanation:
+          type: string
+          nullable: true
 
   responses:
     Unauthorized:
@@ -327,12 +393,14 @@ components:
             type: object
             properties:
               errors:
-                type: array
-                items:
+                type: object
+                additionalProperties:
                   type: string
+                example:
+                  name: Name is required
 
 security:
-  - bearerAuth: []
+  - cookieAuth: []
 
 paths:
   # ---------------- AUTH ----------------
@@ -365,19 +433,17 @@ paths:
               example:
                 name: Tushar Bhardwaj
                 email: tushar@staffwise.com
-                employeeId: "1433"
-                password: password123
+                employeeId: 1433
+                password: Staffwise1!
                 skills: [React, Node.js, TypeScript]
       responses:
         '201':
-          description: Account created
+          description: Account created. JWT is set in a `token` cookie.
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  token:
-                    type: string
                   user:
                     $ref: '#/components/schemas/User'
         '400':
@@ -408,14 +474,12 @@ paths:
                 password: password123
       responses:
         '200':
-          description: Logged in
+          description: Logged in. JWT is set in a `token` cookie.
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  token:
-                    type: string
                   user:
                     $ref: '#/components/schemas/User'
         '401':
@@ -424,10 +488,19 @@ paths:
   /auth/logout:
     post:
       tags: [Auth]
-      summary: Clear session (stateless — client discards token)
+      summary: Clear session (clears the token cookie — stateless)
+      security: []
       responses:
         '200':
           description: Logged out
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Logged out
 
   /auth/me:
     get:
@@ -511,6 +584,13 @@ paths:
       responses:
         '200':
           description: Updated user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
@@ -542,6 +622,13 @@ paths:
       responses:
         '200':
           description: Role updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
@@ -565,7 +652,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  projects:
+                  history:
                     type: array
                     items:
                       $ref: '#/components/schemas/Project'
@@ -614,8 +701,26 @@ paths:
       responses:
         '201':
           description: Team created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  team:
+                    $ref: '#/components/schemas/Team'
         '400':
-          $ref: '#/components/responses/ValidationError'
+          description: Validation failed or team name already exists
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/Error'
+                  - type: object
+                    properties:
+                      errors:
+                        type: object
+                        additionalProperties:
+                          type: string
         '403':
           $ref: '#/components/responses/Forbidden'
 
@@ -702,6 +807,13 @@ paths:
       responses:
         '200':
           description: Member added
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  team:
+                    $ref: '#/components/schemas/Team'
         '400':
           description: User already a member
         '403':
@@ -727,6 +839,13 @@ paths:
       responses:
         '200':
           description: Member removed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  team:
+                    $ref: '#/components/schemas/Team'
         '400':
           description: User is not a member
         '403':
@@ -738,23 +857,31 @@ paths:
   /history/reflections:
     post:
       tags: [History]
-      summary: Submit an employee reflection
+      summary: Submit an employee reflection (Employee only)
+      description: >
+        `employeeId` is required by validation but is always overwritten server-side
+        with the authenticated user's id.
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
-              required: [projectId, whatBuilt, whatWentWell, whatWentWrong, skillsGainedOrUsed]
+              required: [employeeId, projectId, whatBuilt, whatWentWell, whatWentWrong, skillsGainedOrUsed]
               properties:
+                employeeId:
+                  type: string
                 projectId:
                   type: string
                 whatBuilt:
                   type: string
+                  minLength: 10
                 whatWentWell:
                   type: string
+                  minLength: 10
                 whatWentWrong:
                   type: string
+                  minLength: 10
                 skillsGainedOrUsed:
                   type: array
                   items:
@@ -767,42 +894,59 @@ paths:
               schema:
                 type: object
                 properties:
+                  message:
+                    type: string
                   reflection:
                     $ref: '#/components/schemas/Reflection'
+        '400':
+          $ref: '#/components/responses/ValidationError'
         '403':
           $ref: '#/components/responses/Forbidden'
 
   /history/validations:
     post:
       tags: [History]
-      summary: Submit an admin validation
+      summary: Submit an admin validation (Admin only)
+      description: >
+        `adminId` is required by validation but is always overwritten server-side
+        with the authenticated user's id.
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
-              required: [projectId, employeeId, performanceScores, skillValidation, qualitativeNote]
+              required: [adminId, projectId, employeeId, performanceScores, skillValidation, qualitativeNote]
               properties:
+                adminId:
+                  type: string
                 projectId:
                   type: string
                 employeeId:
                   type: string
                 performanceScores:
                   type: object
+                  required: [technical, collaboration, ownership]
                   properties:
                     technical:
                       type: number
+                      minimum: 1
+                      maximum: 10
                     collaboration:
                       type: number
+                      minimum: 1
+                      maximum: 10
                     ownership:
                       type: number
+                      minimum: 1
+                      maximum: 10
                 skillValidation:
                   type: array
                   items:
                     type: string
                 qualitativeNote:
                   type: string
+                  minLength: 10
       responses:
         '201':
           description: Validation submitted
@@ -811,8 +955,12 @@ paths:
               schema:
                 type: object
                 properties:
+                  message:
+                    type: string
                   validation:
                     $ref: '#/components/schemas/Validation'
+        '400':
+          $ref: '#/components/responses/ValidationError'
         '403':
           $ref: '#/components/responses/Forbidden'
 
@@ -840,6 +988,8 @@ paths:
                       $ref: '#/components/schemas/Reflection'
         '403':
           $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
 
   /history/reflections/{employeeId}/{projectId}:
     parameters:
@@ -868,6 +1018,8 @@ paths:
                     $ref: '#/components/schemas/Reflection'
         '403':
           $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
 
   /history/validations/{employeeId}/{projectId}:
     parameters:
@@ -898,6 +1050,8 @@ paths:
                       $ref: '#/components/schemas/Validation'
         '403':
           $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
 
   /history/validations/mine/{employeeId}/{projectId}:
     parameters:
@@ -926,6 +1080,8 @@ paths:
                     $ref: '#/components/schemas/Validation'
         '403':
           $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
 
   /history/skills/{employeeId}/{projectId}:
     parameters:
@@ -956,6 +1112,8 @@ paths:
                       type: string
         '403':
           $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
 
   # ---------------- PROJECTS ----------------
   /projects:
@@ -1012,8 +1170,26 @@ paths:
       responses:
         '201':
           description: Project created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  project:
+                    $ref: '#/components/schemas/Project'
         '400':
-          $ref: '#/components/responses/ValidationError'
+          description: Validation failed or a project with this name already exists
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/Error'
+                  - type: object
+                    properties:
+                      errors:
+                        type: object
+                        additionalProperties:
+                          type: string
         '403':
           $ref: '#/components/responses/Forbidden'
 
@@ -1075,6 +1251,26 @@ paths:
       responses:
         '200':
           description: Project updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  project:
+                    $ref: '#/components/schemas/Project'
+        '400':
+          description: Validation failed or a project with this name already exists
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/Error'
+                  - type: object
+                    properties:
+                      errors:
+                        type: object
+                        additionalProperties:
+                          type: string
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
@@ -1115,6 +1311,13 @@ paths:
       responses:
         '200':
           description: Team assigned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  project:
+                    $ref: '#/components/schemas/Project'
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
@@ -1138,6 +1341,13 @@ paths:
       responses:
         '200':
           description: Team unassigned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  project:
+                    $ref: '#/components/schemas/Project'
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
@@ -1171,7 +1381,29 @@ paths:
                 reason: I've worked with this tech stack before and want to build on it.
       responses:
         '200':
-          description: Preference submitted/updated
+          description: Preference updated (existing preference found)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Preference updated successfully
+                  preference:
+                    $ref: '#/components/schemas/Preference'
+        '201':
+          description: Preference submitted (new)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Preference submitted successfully
+                  preference:
+                    $ref: '#/components/schemas/Preference'
         '400':
           $ref: '#/components/responses/ValidationError'
         '403':
@@ -1211,32 +1443,29 @@ paths:
           type: string
     post:
       tags: [Documents]
-      summary: Upload a file (Multer to Cloudflare R2)
+      summary: Upload a file (Admin only, Multer to Cloudflare R2)
       requestBody:
         required: true
         content:
           multipart/form-data:
             schema:
               type: object
-              required: [file, title]
+              required: [file]
               properties:
                 file:
                   type: string
                   format: binary
                 title:
                   type: string
-              example:
-                title: Requirements Specification
       responses:
         '201':
           description: Document uploaded
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  document:
-                    $ref: '#/components/schemas/ProjectDocument'
+                $ref: '#/components/schemas/ProjectDocument'
+        '400':
+          description: No file uploaded or invalid project id
         '403':
           $ref: '#/components/responses/Forbidden'
     get:
@@ -1248,12 +1477,11 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  documents:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/ProjectDocument'
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProjectDocument'
+        '403':
+          $ref: '#/components/responses/Forbidden'
 
   /projects/{id}/documents/{docId}/download:
     parameters:
@@ -1297,9 +1525,9 @@ paths:
           type: string
     delete:
       tags: [Documents]
-      summary: Remove a document (metadata + R2 object) — Admin any, Employee own upload only
+      summary: Remove a document (metadata + R2 object) — Admin only
       responses:
-        '200':
+        '204':
           description: Document removed
         '403':
           $ref: '#/components/responses/Forbidden'
@@ -1324,6 +1552,7 @@ paths:
             minimum: 1
         - in: query
           name: limit
+          description: Default 20
           schema:
             type: integer
             minimum: 1
@@ -1339,7 +1568,12 @@ paths:
                   topics:
                     type: array
                     items:
-                      $ref: '#/components/schemas/DiscussionTopic'
+                      allOf:
+                        - $ref: '#/components/schemas/DiscussionTopic'
+                        - type: object
+                          properties:
+                            replyCount:
+                              type: integer
                   page:
                     type: integer
                   limit:
@@ -1401,7 +1635,7 @@ paths:
                   comments:
                     type: array
                     items:
-                      $ref: '#/components/schemas/DiscussionComment'
+                      $ref: '#/components/schemas/ThreadedComment'
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
@@ -1422,16 +1656,27 @@ paths:
       responses:
         '200':
           description: Topic updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiscussionTopic'
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
     delete:
       tags: [Discussions]
-      summary: Delete a topic
+      summary: Delete a topic (author or admin) and all its comments
       responses:
         '200':
           description: Topic deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
@@ -1506,16 +1751,27 @@ paths:
       responses:
         '200':
           description: Comment updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiscussionComment'
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
     delete:
       tags: [Discussions]
-      summary: Delete a comment or its replies
+      summary: Delete a comment or its replies (author or admin)
       responses:
         '200':
           description: Comment deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
@@ -1539,6 +1795,15 @@ paths:
       responses:
         '200':
           description: Upvote toggled
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  upvotes:
+                    type: integer
+                  upvoted:
+                    type: boolean
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
@@ -1562,6 +1827,15 @@ paths:
       responses:
         '200':
           description: Upvote toggled
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  upvotes:
+                    type: integer
+                  upvoted:
+                    type: boolean
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
@@ -1585,6 +1859,10 @@ paths:
       responses:
         '200':
           description: Topic pin state updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiscussionTopic'
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
@@ -1597,20 +1875,39 @@ paths:
         required: true
         schema:
           type: string
+      - name: limit
+        in: query
+        description: Number of ranked candidates to return (default 5)
+        schema:
+          type: integer
+          minimum: 1
     get:
       tags: [AI]
       summary: AI-suggested suitable employees/teams (Admin only)
       responses:
         '200':
           description: Ranked recommendations
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  candidates:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Candidate'
+        '400':
+          $ref: '#/components/responses/ValidationError'
         '403':
           $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
 
   # ---------------- AI ----------------
   /ai/query:
     post:
       tags: [AI]
-      summary: Ask the assistant a question (scoped by role — employee own data only, admin full context)
+      summary: Ask the assistant a question (Employee only — scoped to the employee's own data)
       requestBody:
         required: true
         content:
@@ -1621,15 +1918,11 @@ paths:
               properties:
                 query:
                   type: string
-                context:
-                  type: object
-                  properties:
-                    projectId:
-                      type: string
+                projectId:
+                  type: string
               example:
-                query: Which employees would be best suited for a React + Node.js project?
-                context:
-                  projectId: "665f1a2b3c4d5e6f7a8b9c0d"
+                query: What have I worked on this quarter?
+                projectId: "665f1a2b3c4d5e6f7a8b9c0d"
       responses:
         '200':
           description: AI response
@@ -1640,14 +1933,77 @@ paths:
                 properties:
                   response:
                     type: string
+        '400':
+          description: query is required
+        '403':
+          $ref: '#/components/responses/Forbidden'
 
-  # ---------------- ADMIN ----------------
-  /admin/analytics:
-    get:
-      tags: [Admin]
-      summary: Utilization + staffing stats (Admin only)
+  /ai/admin/summarize:
+    post:
+      tags: [AI]
+      summary: Generate an AI summary for a project (Admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [query, projectId]
+              properties:
+                query:
+                  type: string
+                projectId:
+                  type: string
+              example:
+                query: Summarize the status of this project and who is contributing.
+                projectId: "665f1a2b3c4d5e6f7a8b9c0d"
       responses:
         '200':
-          description: Analytics data
+          description: AI summary
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  response:
+                    type: string
+        '400':
+          description: query and projectId are required
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /ai/admin/qa:
+    post:
+      tags: [AI]
+      summary: Ask the admin assistant a question with project-wide context (Admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [query]
+              properties:
+                query:
+                  type: string
+                projectId:
+                  type: string
+                employeeIdentifier:
+                  type: string
+              example:
+                query: Which employees would be best suited for a React + Node.js project?
+                projectId: "665f1a2b3c4d5e6f7a8b9c0d"
+      responses:
+        '200':
+          description: AI response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  response:
+                    type: string
+        '400':
+          description: query is required
         '403':
           $ref: '#/components/responses/Forbidden'
