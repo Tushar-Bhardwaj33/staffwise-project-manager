@@ -36,11 +36,13 @@ export const register = async (req: Request, res: Response) => {
       role: "employee", // enforced regardless of what's sent — no admin signup
     });
 
+    const { passwordHash: _, ...secureUser } = user.toObject();
+
     const token = signToken({ id: user._id.toString(), role: user.role });
 
     res.cookie("token", token, COOKIE_OPTIONS);
     res.status(201).json({
-      user: user,
+      user: secureUser,
     });
   } catch (err) {
     console.error("Register error:", err);
