@@ -4,12 +4,12 @@ import { User } from "../models/user.model.js";
 import { hashPassword, comparePassword } from "../utils/hashPassword.util.js";
 import { signToken } from "../utils/jwt.util.js";
 
-const COOKIE_OPTIONS = {
-  httpOnly: true,
-  secure: process.env.NODE_ENV === "production",
-  sameSite: process.env.NODE_ENV === "production" ? "none" as const : "lax" as const,
-  maxAge: 24 * 60 * 60 * 1000,
-};
+// const COOKIE_OPTIONS = {
+//   httpOnly: true,
+//   secure: process.env.NODE_ENV === "production",
+//   sameSite: process.env.NODE_ENV === "production" ? "none" as const : "lax" as const,
+//   maxAge: 24 * 60 * 60 * 1000,
+// };
 
 export const register = async (req: Request, res: Response) => {
   try {
