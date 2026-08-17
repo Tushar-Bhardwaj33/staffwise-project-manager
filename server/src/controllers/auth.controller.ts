@@ -54,24 +54,24 @@ export const login = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
 
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(401).json({ message: "Invalid credentials" });
-    }
+    // const user = await User.findOne({ email });
+    // if (!user) {
+    //   return res.status(401).json({ message: "Invalid credentials" });
+    // }
 
-    const isMatch = await comparePassword(password, user.passwordHash);
-    if (!isMatch) {
-      return res.status(401).json({ message: "Invalid credentials" });
-    }
+    // const isMatch = await comparePassword(password, user.passwordHash);
+    // if (!isMatch) {
+    //   return res.status(401).json({ message: "Invalid credentials" });
+    // }
 
-    const token = signToken({ id: user._id.toString(), role: user.role });
+    // const token = signToken({ id: user._id.toString(), role: user.role });
 
-    const { passwordHash, ...safeUser } = user.toObject();
+    // const { passwordHash, ...safeUser } = user.toObject();
 
-    res.cookie("token", token, COOKIE_OPTIONS);
-    res.status(200).json({
-      user: safeUser,
-    } as any);
+    // res.cookie("token", token, COOKIE_OPTIONS);
+    // res.status(200).json({
+    //   user: safeUser,
+    // } as any);
 
   } catch (err) {
     console.error("Login error:", err);
