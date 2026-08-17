@@ -110,41 +110,27 @@ jobs:
             core.setOutput('base_ref', pullRequest.base.ref);
             core.setOutput('head_sha', pullRequest.head.sha);
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Install OpenCodeReview
-        run: npm install -g @alibaba-group/open-code-review
-
-      - name: Run OCR review
-        env:
-          PROVIDER: ${{ secrets.PROVIDER }}
-          MODEL: ${{ secrets.MODEL }}
-          API_KEY: ${{ secrets.API_KEY }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_TITLE: ${{ github.event.pull_request.title }}
-          BASE_REF: ${{ steps.pr-context.outputs.base_ref || github.base_ref }}
-          HEAD_SHA: ${{ steps.pr-context.outputs.head_sha || github.head_ref }}
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        
+      - name: Read Global Context
+        id: global-context
         run: |
-          # 1. Setup Provider
-          ocr config set provider ollama
-          
-          # 2. Add Required URL and Protocol
-          ocr config set custom_providers.ollama.url "$OCR_LLM_URL"
-          ocr config set custom_providers.ollama.protocol openai
-          
-          # 3. Set the Model globally
-          ocr config set model minimax-m3
-          
-          # 4. Set the API Key
-          ocr config set custom_providers.ollama.api_key "$API_KEY"
-          
-          # 4. Run the scan
-          ocr review \
-            --background "$PR_TITLE" \
-            -b .opencodereview/server/global_context.md \
-            --from "origin/$BASE_REF" \
-            --to "origin/$HEAD_SHA" \
-            --format github-pr
+          CONTEXT=$(cat .opencodereview/server/global_context.md)
+          # Multiline string trick for GitHub Actions
+          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+          echo "content<<$EOF" >> $GITHUB_OUTPUT
+          echo "$CONTEXT" >> $GITHUB_OUTPUT
+          echo "$EOF" >> $GITHUB_OUTPUT
+
+      - name: Run OpenCodeReview
+        uses: alibaba/open-code-review@main
+        with:
+          llm_url: ${{ secrets.OCR_LLM_URL }} # Leave blank if using default Ollama provider
+          llm_auth_token: ${{ secrets.API_KEY }}
+          llm_model: ${{ secrets.MODEL }}
+          background: |
+            PR Title: ${{ github.event.pull_request.title }}
+            
+            Global Architecture Context:
+            ${{ steps.global-context.outputs.content }}
