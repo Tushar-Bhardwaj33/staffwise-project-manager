@@ -11,67 +11,67 @@ const COOKIE_OPTIONS = {
   maxAge: 24 * 60 * 60 * 1000,
 };
 
-export const register = async (req: Request, res: Response) => {
-  try {
-    const { name, email, employeeId, password, skills } = req.body;
+// export const register = async (req: Request, res: Response) => {
+//   try {
+//     const { name, email, employeeId, password, skills } = req.body;
 
-    const existingEmail = await User.findOne({ email });
-    if (existingEmail) {
-      return res.status(409).json({ message: "Email already in use" });
-    }
+//     const existingEmail = await User.findOne({ email });
+//     if (existingEmail) {
+//       return res.status(409).json({ message: "Email already in use" });
+//     }
 
-    const existingEmployeeId = await User.findOne({ employeeId });
-    if (existingEmployeeId) {
-      return res.status(409).json({ message: "Employee ID already in use" });
-    }
+//     const existingEmployeeId = await User.findOne({ employeeId });
+//     if (existingEmployeeId) {
+//       return res.status(409).json({ message: "Employee ID already in use" });
+//     }
 
-    const passwordHash = await hashPassword(password);
+//     const passwordHash = await hashPassword(password);
 
-    const user = await User.create({
-      name,
-      email,
-      employeeId,
-      passwordHash,
-      skills,
-      role: "employee", // enforced regardless of what's sent — no admin signup
-    });
+//     const user = await User.create({
+//       name,
+//       email,
+//       employeeId,
+//       passwordHash,
+//       skills,
+//       role: "employee", // enforced regardless of what's sent — no admin signup
+//     });
 
-    const { passwordHash: _, ...secureUser } = user.toObject();
+//     const { passwordHash: _, ...secureUser } = user.toObject();
 
-    const token = signToken({ id: user._id.toString(), role: user.role });
+//     const token = signToken({ id: user._id.toString(), role: user.role });
 
-    res.cookie("token", token, COOKIE_OPTIONS);
-    res.status(201).json({
-      user: secureUser,
-    });
-  } catch (err) {
-    console.error("Register error:", err);
-    res.status(500).json({ message: "Something went wrong during registration" });
-  }
-};
+//     res.cookie("token", token, COOKIE_OPTIONS);
+//     res.status(201).json({
+//       user: secureUser,
+//     });
+//   } catch (err) {
+//     console.error("Register error:", err);
+//     res.status(500).json({ message: "Something went wrong during registration" });
+//   }
+// };
 
 export const login = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
 
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(401).json({ message: "Invalid credentials" });
-    }
+    // const user = await User.findOne({ email });
+    // if (!user) {
+    //   return res.status(401).json({ message: "Invalid credentials" });
+    // }
 
-    const isMatch = await comparePassword(password, user.passwordHash);
-    if (!isMatch) {
-      return res.status(401).json({ message: "Invalid credentials" });
-    }
+    // const isMatch = await comparePassword(password, user.passwordHash);
+    // if (!isMatch) {
+    //   return res.status(401).json({ message: "Invalid credentials" });
+    // }
 
-    const token = signToken({ id: user._id.toString(), role: user.role });
+    // const token = signToken({ id: user._id.toString(), role: user.role });
 
-    const { passwordHash, ...safeUser } = user.toObject();
+    // const { passwordHash, ...safeUser } = user.toObject();
 
-    res.cookie("token", token, COOKIE_OPTIONS);
-    res.status(200).json({
-      user: safeUser,
-    } as any);
+    // res.cookie("token", token, COOKIE_OPTIONS);
+    // res.status(200).json({
+    //   user: safeUser,
+    // } as any);
 
   } catch (err) {
     console.error("Login error:", err);
