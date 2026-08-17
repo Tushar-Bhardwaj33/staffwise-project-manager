@@ -1,8 +1,8 @@
 import { tool } from "@langchain/core/tools";
 import { z } from "zod";
-import { Project } from "../../../models/Project.model.js";
-import { Team } from "../../../models/Team.model.js";
-import { User } from "../../../models/User.model.js";
+import { Project } from "../../../models/project.model.js";
+import { Team } from "../../../models/team.model.js";
+import { User } from "../../../models/user.model.js";
 import { findEmployeeByIdentifier, getProjectsForEmployee } from "../../../services/employee.service.js";
 import { getProjectWithDetails } from "../../../services/project.service.js";
 

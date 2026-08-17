@@ -1,8 +1,8 @@
 import type {  Request, Response } from 'express';
-import { EmployeeReflection, AdminValidation } from '../models/History.model.js';
-import type { IEmployeeReflection, IAdminValidation } from '../types/history.type.js';
+import { EmployeeReflection, AdminValidation } from '../models/history.model.js';
+import type { IEmployeeReflection, IAdminValidation } from '../types/history.types.js';
 import { Types } from 'mongoose';
-import { memberOfProjectTeam } from '../utils/projectAccess.js';
+import { memberOfProjectTeam } from '../utils/projectAccess.util.js';
 
 export const submitReflection = async (req: Request, res: Response) => {
   try {

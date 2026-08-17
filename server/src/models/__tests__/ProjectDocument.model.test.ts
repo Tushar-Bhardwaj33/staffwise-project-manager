@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
-import { ProjectDocument } from "../ProjectDocument.model.js";
-import { User } from "../User.model.js";
-import { Project } from "../Project.model.js";
+import { ProjectDocument } from "../projectDocument.model.js";
+import { User } from "../user.model.js";
+import { Project } from "../project.model.js";
 
 describe("ProjectDocument model", () => {
   it("creates a valid document record", async () => {

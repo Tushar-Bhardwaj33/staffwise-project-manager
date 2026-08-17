@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import request from "supertest";
 import app from "../../app.js";
-import { User } from "../../models/User.model.js";
-import { Project } from "../../models/Project.model.js";
-import { Team } from "../../models/Team.model.js";
-import { AIQueryLog } from "../../models/AIQueryLog.model.js";
+import { User } from "../../models/user.model.js";
+import { Project } from "../../models/project.model.js";
+import { Team } from "../../models/team.model.js";
+import { AIQueryLog } from "../../models/aiQueryLog.model.js";
 
 vi.mock("../../agents/admin/graph.js", () => ({
   adminGraph: { invoke: vi.fn().mockResolvedValue({ response: "mocked summary" }) },

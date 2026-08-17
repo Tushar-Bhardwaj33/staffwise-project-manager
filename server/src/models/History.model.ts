@@ -1,5 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
-import type { IEmployeeReflection, IAdminValidation } from "../types/history.type.js";
+import type { IEmployeeReflection, IAdminValidation } from "../types/history.types.js";
 
 const EmployeeReflectionSchema = new Schema(
   {

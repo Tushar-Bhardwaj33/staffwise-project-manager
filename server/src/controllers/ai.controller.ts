@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import { adminGraph, adminQaGraph } from "../agents/admin/graph.js";
-import { AIQueryLog } from "../models/AIQueryLog.model.js";
-import { User } from "../models/User.model.js";
+import { AIQueryLog } from "../models/aiQueryLog.model.js";
+import { User } from "../models/user.model.js";
 import { getProjectsForEmployee } from "../services/employee.service.js";
 
 function extractTextFromResponse(response: any): string {

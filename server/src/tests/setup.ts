@@ -4,13 +4,13 @@ process.env.JWT_SECRET = "test-secret-key-for-vitest-only";
 import { beforeAll, afterEach, afterAll } from "vitest";
 import mongoose from "mongoose";
 import { MongoMemoryServer } from "mongodb-memory-server";
-import { User } from "../models/User.model.js";
-import { Team } from "../models/Team.model.js";
-import { Project } from "../models/Project.model.js";
-import { Preference } from "../models/Preference.model.js";
-import { ProjectDocument } from "../models/ProjectDocument.model.js";
+import { User } from "../models/user.model.js";
+import { Team } from "../models/team.model.js";
+import { Project } from "../models/project.model.js";
+import { Preference } from "../models/preference.model.js";
+import { ProjectDocument } from "../models/projectDocument.model.js";
 // import { Comment } from "../models/Comment.model.js";
-import { AIQueryLog } from "../models/AIQueryLog.model.js";
+import { AIQueryLog } from "../models/aiQueryLog.model.js";
 
 let mongoServer: MongoMemoryServer;
 

@@ -1,8 +1,8 @@
 import type { Request, Response } from "express";
 import Type from "mongoose";
-import { User } from "../models/User.model.js";
-import { hashPassword, comparePassword } from "../utils/hashPassword.js";
-import { signToken } from "../utils/jwt.js";
+import { User } from "../models/user.model.js";
+import { hashPassword, comparePassword } from "../utils/hashPassword.util.js";
+import { signToken } from "../utils/jwt.util.js";
 
 const COOKIE_OPTIONS = {
   httpOnly: true,

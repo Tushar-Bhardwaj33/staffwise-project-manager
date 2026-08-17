@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
-import { AIQueryLog } from "../AIQueryLog.model.js";
-import { User } from "../User.model.js";
-import { Project } from "../Project.model.js";
+import { AIQueryLog } from "../aiQueryLog.model.js";
+import { User } from "../user.model.js";
+import { Project } from "../project.model.js";
 
 describe("AIQueryLog model", () => {
   it("creates a valid log entry", async () => {

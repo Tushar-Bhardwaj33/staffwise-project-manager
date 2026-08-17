@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
-import { Preference } from "../Preference.model.js";
-import { User } from "../User.model.js";
-import { Project } from "../Project.model.js";
+import { Preference } from "../preference.model.js";
+import { User } from "../user.model.js";
+import { Project } from "../project.model.js";
 
 describe("Preference model", () => {
   it("creates a valid preference", async () => {

@@ -12,7 +12,7 @@ import {
   toggleCommentUpvote,
   toggleTopicPin,
   toggleTopicUpvote
-} from "../controllers/disscussions.controller.js";
+} from "../controllers/discussions.controller.js";
 import { requireRole } from "../middlewares/rbac.middleware.js";
 
 const router = Router({ mergeParams: true });

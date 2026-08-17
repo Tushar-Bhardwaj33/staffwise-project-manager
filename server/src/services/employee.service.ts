@@ -1,6 +1,6 @@
-import { User } from "../models/User.model.js";
-import { Team } from "../models/Team.model.js";
-import { Project } from "../models/Project.model.js";
+import { User } from "../models/user.model.js";
+import { Team } from "../models/team.model.js";
+import { Project } from "../models/project.model.js";
 import { Types } from "mongoose";
 
 const escapeRegex = (str: string) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");

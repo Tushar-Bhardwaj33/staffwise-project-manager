@@ -1,4 +1,4 @@
-import { Project } from "../models/Project.model.js";
+import { Project } from "../models/project.model.js";
 import { Types } from "mongoose";
 
 export async function userCanAccessProject(userId: string, projectId: Types.ObjectId, isAdmin: boolean) {

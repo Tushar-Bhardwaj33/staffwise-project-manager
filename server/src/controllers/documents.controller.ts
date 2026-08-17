@@ -1,9 +1,9 @@
 import type { Request, Response } from "express";
 import { PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
-import { r2Client, R2_BUCKET } from "../config/r2Client.js";
-import { ProjectDocument } from "../models/ProjectDocument.model.js";
-import { Project } from "../models/Project.model.js";
-import { userCanAccessProject } from "../utils/projectAccess.js";
+import { r2Client, R2_BUCKET } from "../config/r2Client.config.js";
+import { ProjectDocument } from "../models/projectDocument.model.js";
+import { Project } from "../models/project.model.js";
+import { userCanAccessProject } from "../utils/projectAccess.util.js";
 import { Types } from "mongoose";
 
 // --- Access check -----------------------------------------------------

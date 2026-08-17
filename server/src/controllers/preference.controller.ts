@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { Preference } from "../models/Preference.model.js";
+import { Preference } from "../models/preference.model.js";
 import { Types } from "mongoose";
 
 const VALID_INTERESTS = ["interested", "not-interested"];

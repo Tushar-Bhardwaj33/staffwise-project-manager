@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { Request, Response, NextFunction } from "express";
 import { authMiddleware } from "../auth.middleware.js";
-import { signToken } from "../../utils/jwt.js";
+import { signToken } from "../../utils/jwt.util.js";
 
 const mockRes = () => {
   const res: Partial<Response> = {};
