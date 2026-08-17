@@ -123,12 +123,19 @@ jobs:
           echo "$CONTEXT" >> $GITHUB_OUTPUT
           echo "$EOF" >> $GITHUB_OUTPUT
 
+      - name: Configure Provider
+        env:
+          PROVIDER: ${{ secrets.PROVIDER }}
+          MODEL: ${{ secrets.MODEL }}
+          API_KEY: ${{ secrets.API_KEY }}
+        run: |
+          ocr config set provider "$PROVIDER"
+          ocr config set model "$MODEL"
+          ocr config set providers."$PROVIDER".api_key "$API_KEY"
+
       - name: Run OpenCodeReview
         uses: alibaba/open-code-review@main
         with:
-          llm_url: ${{ secrets.OCR_LLM_URL }} # Leave blank if using default Ollama provider
-          llm_auth_token: ${{ secrets.API_KEY }}
-          llm_model: ${{ secrets.MODEL }}
           background: |
             PR Title: ${{ github.event.pull_request.title }}
             
