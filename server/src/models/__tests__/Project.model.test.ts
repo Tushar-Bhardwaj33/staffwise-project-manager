@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { Project } from "../Project.model.js";
-import { User } from "../User.model.js";
+import { Project } from "../project.model.js";
+import { User } from "../user.model.js";
 
 describe("Project model", () => {
   it("creates a valid project", async () => {

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { User } from "../User.model.js";
+import { User } from "../user.model.js";
 
 describe("User model", () => {
   it("creates a valid user with defaults", async () => {

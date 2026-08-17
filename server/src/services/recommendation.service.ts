@@ -1,7 +1,7 @@
-import { Project } from "../models/Project.model.js";
-import { User } from "../models/User.model.js";
-import { Preference } from "../models/Preference.model.js";
-import { Team } from "../models/Team.model.js";
+import { Project } from "../models/project.model.js";
+import { User } from "../models/user.model.js";
+import { Preference } from "../models/preference.model.js";
+import { Team } from "../models/team.model.js";
 import { adminQaGraph } from "../agents/admin/graph.js";
 
 const WEIGHT_INTERESTED = 0.3;

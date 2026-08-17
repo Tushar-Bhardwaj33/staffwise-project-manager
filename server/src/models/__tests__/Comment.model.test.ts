@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { Comment } from "../Comment.model.js";
-import { User } from "../User.model.js";
-import { Project } from "../Project.model.js";
+import { User } from "../user.model.js";
+import { Project } from "../project.model.js";
 
 describe("Comment model", () => {
   it("creates a top-level comment with a title", async () => {

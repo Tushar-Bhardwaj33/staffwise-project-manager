@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import { Types } from "mongoose";
-import { User } from "../models/User.model.js";
-import { Preference } from "../models/Preference.model.js";
+import { User } from "../models/user.model.js";
+import { Preference } from "../models/preference.model.js";
 
 export const getAllUsers = async (req: Request, res: Response) => {
   try {
@@ -96,7 +96,7 @@ export const getUserHistory = async (req: Request, res: Response) => {
       return res.status(403).json({ message: "Forbidden — you can only view your own history" });
     }
 
-    const { EmployeeReflection } = await import("../models/History.model.js");
+    const { EmployeeReflection } = await import("../models/history.model.js");
 
     const reflections = await EmployeeReflection.find({ employeeId: new Types.ObjectId(userId) })
       .populate("projectId")

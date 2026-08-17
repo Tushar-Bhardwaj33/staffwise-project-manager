@@ -1,0 +1,59 @@
+{
+  "rules": [
+    {
+      "path": "server/**/*.controller.ts",
+      "rule": ".opencodereview/server/rules/controller_rules.md",
+      "merge_system_rule": false
+    },
+    {
+      "path": "server/**/*.model.ts",
+      "rule": ".opencodereview/server/rules/model_rules.md",
+      "merge_system_rule": false
+    },
+    {
+      "path": "server/**/*.routes.ts",
+      "rule": ".opencodereview/server/rules/routes_rules.md",
+      "merge_system_rule": false
+    },
+    {
+      "path": "server/**/*.service.ts",
+      "rule": ".opencodereview/server/rules/service_rules.md",
+      "merge_system_rule": false
+    },
+    {
+      "path": "server/**/*.validator.ts",
+      "rule": ".opencodereview/server/rules/validator_rules.md",
+      "merge_system_rule": false
+    },
+    {
+      "path": "server/**/*.middleware.ts",
+      "rule": ".opencodereview/server/rules/middleware_rules.md",
+      "merge_system_rule": false
+    },
+    {
+      "path": "server/**/*.config.ts",
+      "rule": ".opencodereview/server/rules/config_rules.md",
+      "merge_system_rule": false
+    },
+    {
+      "path": "server/**/*.util.ts",
+      "rule": ".opencodereview/server/rules/util_rules.md",
+      "merge_system_rule": false
+    },
+    {
+      "path": "server/**/*.types.ts",
+      "rule": ".opencodereview/server/rules/types_rules.md",
+      "merge_system_rule": false
+    },
+    {
+      "path": "server/**/*.test.ts",
+      "rule": ".opencodereview/server/rules/test_rules.md",
+      "merge_system_rule": false
+    },
+    {
+      "path": "client/**/*.tsx",
+      "rule": ".opencodereview/client/rules/components_rules.md",
+      "merge_system_rule": false
+    }
+  ]
+}

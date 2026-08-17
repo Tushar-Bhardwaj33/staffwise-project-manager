@@ -1,7 +1,7 @@
 // server/src/scripts/testAdminGraph.ts
 import "dotenv/config";
 import mongoose from "mongoose";
-import connectDB from "../config/db.js";
+import connectDB from "../config/db.config.js";
 import { adminGraph } from "../agents/admin/graph.js";
 
 const main = async () => {

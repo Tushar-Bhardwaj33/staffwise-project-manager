@@ -1,6 +1,6 @@
 import type { ITopic, IComment } from "../types/discussions.types.js";
-import { Topic, Comment } from "../models/Discussions.model.js";
-import { userCanAccessProject } from "../utils/projectAccess.js";
+import { Topic, Comment } from "../models/discussions.model.js";
+import { userCanAccessProject } from "../utils/projectAccess.util.js";
 import { createTopicSchema, createCommentSchema, editCommentSchema, editTopicSchema } from "../validators/discussions.validator.js";
 import type { Request, Response } from "express";
 import mongoose, { Types } from "mongoose";
