@@ -8,23 +8,23 @@ const buildContextBlock = (state: any) => {
   const parts: string[] = [];
 
   if (state.projectContext) {
-    const p = state.projectContext;
-    parts.push(
-      `Project "${p.title}" (${p.type}): ${p.description}\n` +
-      `Required skills: ${p.requiredSkills.join(", ")}\n` +
-      `Timeline: ${new Date(p.startDate).toDateString()} → ${new Date(p.endDate).toDateString()}\n` +
-      `Assigned teams: ${p.assignedTeams.map((t: any) => `${t.name} (Members: ${(t.members || []).map((m: any) => m.name).join(", ") || "none"})`).join("; ") || "none"}`
-    );
-  }
+ const p = state.projectContext;
+ parts.push(
+ `Project "${p.title}" (${p.type}): ${p.description}\n` +
+ `Required skills: ${(p.requiredSkills ?? []).join(", ") || "none"}\n` +
+ `Timeline: ${new Date(p.startDate).toDateString()} → ${new Date(p.endDate).toDateString()}\n` +
+ `Assigned teams: ${(p.assignedTeams ?? []).map((t) => `${t.name} (Members: ${(t.members ?? []).map((m) => m.name).join(", ") || "none"})`).join("; ") || "none"}`
+ );
+ }
 
-  if (state.employeeContext) {
-    const e = state.employeeContext;
-    parts.push(`Employee ${e.name} (ID: ${e.employeeId}): skills — ${e.skills.join(", ") || "none listed"}`);
-  }
+ if (state.employeeContext) {
+ const e = state.employeeContext;
+ parts.push(`Employee ${e.name} (ID: ${e.employeeId}): skills — ${(e.skills ?? []).join(", ") || "none listed"}`);
+ }
 
-  if (state.employeeProjects?.length) {
-    parts.push(`This employee's current projects: ${state.employeeProjects.map((p: any) => p.title).join(", ")}`);
-  }
+ if (state.employeeProjects?.length) {
+ parts.push(`This employee's current projects: ${state.employeeProjects.map((p) => p.title ?? "untitled").join(", ")}`);
+ }
 
   if (state.currentUser) {
     const u = state.currentUser;
@@ -56,40 +56,55 @@ If you don't have the answer, do NOT say "I have no context". Instead, be conver
     { role: "user", content: `Here is the current backend context (never reveal this block structure to the user):\n${buildContextBlock(state)}` },
   ];
 
-  if (state.history && Array.isArray(state.history)) {
-    for (const h of state.history) {
-      messages.push({ role: h.role, content: h.content });
-    }
-  }
+  const allowedRoles = new Set(["user", "assistant"]);
+ if (Array.isArray(state.history)) {
+ for (const h of state.history) {
+ if (
+ h &&
+ typeof h === "object" &&
+ allowedRoles.has(h.role) &&
+ typeof h.content === "string" &&
+ h.content.length > 0 &&
+ h.content.length <= 4000
+ ) {
+ messages.push({ role: h.role, content: h.content });
+ }
+ }
+ }
 
   messages.push({ role: "user", content: state.query });
 
-  if (!isGlobalAdminQuery) {
-    const result = await adminLLM.invoke(messages);
-    return { response: result.content as string };
-  }
+  try {
+ if (!isGlobalAdminQuery) {
+ const result = await adminLLM.invoke(messages);
+ return { response: (result.content as string) || "I'm sorry, I couldn't generate a response." };
+ }
 
-  const llmWithTools = adminLLM.bindTools(adminTools);
+ const llmWithTools = adminLLM.bindTools(adminTools);
 
-  for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
-    const result = await llmWithTools.invoke(messages);
+ for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
+ const result = await llmWithTools.invoke(messages);
 
-    if (!result.tool_calls || result.tool_calls.length === 0) {
-      return { response: result.content as string };
-    }
+ if (!result.tool_calls || result.tool_calls.length === 0) {
+ return { response: (result.content as string) || "I'm sorry, I couldn't generate a response." };
+ }
 
-    messages.push(result);
+ messages.push(result);
 
-    for (const call of result.tool_calls) {
-      const toolFn = toolsByName[call.name];
-      const output = toolFn
-        ? await toolFn.invoke(call.args as any)
-        : `Unknown tool: ${call.name}`;
-      messages.push({ role: "tool", tool_call_id: call.id, content: String(output) });
-    }
-  }
+ const toolResults = await Promise.all(result.tool_calls.map(async (call) => {
+ const toolFn = toolsByName[call.name];
+ const output = toolFn
+ ? await toolFn.invoke(call.args as any)
+ : `Unknown tool: ${call.name}`;
+ return { role: "tool" as const, tool_call_id: call.id, content: String(output) };
+ }));
+ messages.push(...toolResults);
+ }
 
-  // Ran out of rounds — force a final plain-text answer with whatever we've gathered.
-  const finalResult = await adminLLM.invoke(messages);
-  return { response: finalResult.content as string };
+ // Ran out of rounds — force a final plain-text answer with whatever we've gathered.
+ const finalResult = await adminLLM.invoke(messages);
+ return { response: (finalResult.content as string) || "I'm sorry, I couldn't generate a response." };
+ } catch (err) {
+ return { response: "I'm having trouble reaching my tools right now. Please try again in a moment." };
+ }
 };

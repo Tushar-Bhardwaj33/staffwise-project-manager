@@ -4,37 +4,38 @@ import { User } from "../models/user.model.js";
 import { hashPassword, comparePassword } from "../utils/hashPassword.util.js";
 import { signToken } from "../utils/jwt.util.js";
 
-// const COOKIE_OPTIONS = {
-//   httpOnly: true,
-//   secure: process.env.NODE_ENV === "production",
-//   sameSite: process.env.NODE_ENV === "production" ? "none" as const : "lax" as const,
-//   maxAge: 24 * 60 * 60 * 1000,
-// };
+const COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: process.env.NODE_ENV === "production" ? "none" as const : "lax" as const,
+  maxAge: 24 * 60 * 60 * 1000,
+};
 
 export const register = async (req: Request, res: Response) => {
   try {
     const { name, email, employeeId, password, skills } = req.body;
 
-    const existingEmail = await User.findOne({ email });
-    if (existingEmail) {
-      return res.status(409).json({ message: "Email already in use" });
-    }
+    // Ensure unique indexes on email & employeeId in the User schema.
+ // Then rely on the DB to enforce uniqueness and translate E11000 -> 409.
+ const passwordHash = await hashPassword(password);
 
-    const existingEmployeeId = await User.findOne({ employeeId });
-    if (existingEmployeeId) {
-      return res.status(409).json({ message: "Employee ID already in use" });
-    }
-
-    const passwordHash = await hashPassword(password);
-
-    const user = await User.create({
-      name,
-      email,
-      employeeId,
-      passwordHash,
-      skills,
-      role: "employee", // enforced regardless of what's sent — no admin signup
-    });
+ let user;
+ try {
+ user = await User.create({
+ name,
+ email,
+ employeeId,
+ passwordHash,
+ skills,
+ role: "employee", // enforced regardless of what's sent — no admin signup
+ });
+ } catch (err: any) {
+ if (err && err.code === 11000) {
+ const field = Object.keys(err.keyValue ?? {})[0] ?? "field";
+ return res.status(409).json({ message: `${field} already in use` });
+ }
+ throw err;
+ }
 
     const { passwordHash: _, ...secureUser } = user.toObject();
 
@@ -45,9 +46,10 @@ export const register = async (req: Request, res: Response) => {
       user: secureUser,
     });
   } catch (err) {
-    console.error("Register error:", err);
-    res.status(500).json({ message: "Something went wrong during registration" });
-  }
+ console.error("Register error:", err);
+ // Never expose `err` to the client.
+ res.status(500).json({ message: "Something went wrong during registration" });
+ }
 };
 
 export const login = async (req: Request, res: Response) => {

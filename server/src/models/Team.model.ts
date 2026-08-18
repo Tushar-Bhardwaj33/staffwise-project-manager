@@ -4,7 +4,7 @@ import type { ITeam } from "../types/team.types.js";
 const teamSchema = new Schema<ITeam>(
   {
     name: { type: String, required: true,  unique: true, trim: true },
-    members: [{ type: Schema.Types.ObjectId, ref: "User" }],
+    members: { type: [{ type: Schema.Types.ObjectId, ref: "User" }], default: [] },
     createdBy: { type: Schema.Types.ObjectId, ref: "User", required: true },
   },
   { timestamps: true }

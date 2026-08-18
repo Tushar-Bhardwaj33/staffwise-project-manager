@@ -6,8 +6,10 @@ import { User } from "../../../models/user.model.js";
 import { findEmployeeByIdentifier, getProjectsForEmployee } from "../../../services/employee.service.js";
 import { getProjectWithDetails } from "../../../services/project.service.js";
 
-const formatTeam = (t: any) =>
-  `${t.name} (Members: ${(t.members || []).map((m: any) => m.name).join(", ") || "none"})`;
+const formatTeam = (t: any) => {
+ if (!t) return "unassigned";
+ return `${t.name} (Members: ${(t.members ?? []).map((m: any) => m?.name).filter(Boolean).join(", ") || "none"})`;
+};
 
 export const listProjectsTool = tool(
   async () => {
@@ -21,7 +23,10 @@ export const listProjectsTool = tool(
     return projects
       .map((p: any) => {
         const teamMembers = (p.assignedTeams || []).flatMap((t: any) => t.members || []).map((m: any) => m.name);
-        return `- ${p.title} (${p.type}). Skills: ${p.requiredSkills.join(", ") || "none"}. Timeline: ${new Date(p.startDate).toDateString()} - ${new Date(p.endDate).toDateString()}. Assigned: ${teamMembers.join(", ") || "none"}`;
+        const skills = (p.requiredSkills ?? []).join(", ") || "none";
+ const start = p.startDate ? new Date(p.startDate).toDateString() : "unknown";
+ const end = p.endDate ? new Date(p.endDate).toDateString() : "unknown";
+ return `- ${p.title} (${p.type}). Skills: ${skills}. Timeline: ${start} - ${end}. Assigned: ${teamMembers.join(", ") || "none"}`;
       })
       .join("\n");
   },
@@ -36,7 +41,7 @@ export const listEmployeesTool = tool(
   async () => {
     const employees = await User.find({ role: "employee" }).select("name employeeId skills").lean();
     if (!employees.length) return "No employees exist yet.";
-    return employees.map((e: any) => `- ${e.name} (ID: ${e.employeeId}). Skills: ${e.skills.join(", ") || "none listed"}`).join("\n");
+    return employees.map((e: any) => `- ${e.name} (ID: ${e.employeeId}). Skills: ${(e.skills ?? []).join(", ") || "none listed"}`).join("\n");
   },
   {
     name: "list_employees",
@@ -60,8 +65,8 @@ export const listTeamsTool = tool(
 
 export const getProjectDetailsTool = tool(
   async ({ projectId }: { projectId: string }) => {
-    try {
-      const p: any = await getProjectWithDetails(projectId);
+ try {
+ const p = await getProjectWithDetails(projectId);
       return `Project "${p.title}" (${p.type}): ${p.description}\nRequired skills: ${p.requiredSkills.join(", ")}\nTimeline: ${new Date(p.startDate).toDateString()} - ${new Date(p.endDate).toDateString()}\nAssigned teams: ${(p.assignedTeams || []).map(formatTeam).join("; ") || "none"}`;
     } catch {
       return "No project found with that ID. Use list_projects to find the correct ID first.";
@@ -75,9 +80,9 @@ export const getProjectDetailsTool = tool(
 );
 
 export const findEmployeeTool = tool(
-  async ({ identifier }: { identifier: number }) => {
-    try {
-      const employee: any = await findEmployeeByIdentifier(identifier);
+  async ({ identifier }: { identifier: string }) => {
+ try {
+ const employee = await findEmployeeByIdentifier(identifier);
       const projects = await getProjectsForEmployee(employee._id.toString());
       const projectList = projects.map((p: any) => p.title).join(", ") || "none";
       return `Employee ${employee.name} (ID: ${employee.employeeId}). Skills: ${employee.skills.join(", ") || "none listed"}. Current projects: ${projectList}`;
