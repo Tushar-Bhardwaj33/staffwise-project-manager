@@ -61,6 +61,6 @@ for b in bugs:
 
 print(f'Successfully applied {success} fixes.')
 print(f'Failed to apply {len(failed)} fixes.')
-for f in failed:
-    print('Failed:', f.encode('utf-8', 'ignore').decode('utf-8'))
+for failure in failed:
+    print('Failed:', failure.encode('utf-8', 'ignore').decode('utf-8'))
 
