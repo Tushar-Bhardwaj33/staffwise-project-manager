@@ -7,5 +7,8 @@ export const errorMiddleware = (
   next: NextFunction
 ) => {
   console.error(err);
-  res.status(500).json({ message: err.message || "Internal server error" });
+ const isProd = process.env.NODE_ENV === "production";
+ res.status(500).json({
+ message: isProd ? "Internal server error" : err.message || "Internal server error",
+ });
 };

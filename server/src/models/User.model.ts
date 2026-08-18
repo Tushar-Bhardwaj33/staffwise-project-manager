@@ -19,14 +19,21 @@ const userSchema = new Schema<IUser>(
       minlength: [2, "Name must be at least 2 characters"],
       maxlength: [50, "Name cannot exceed 50 characters"],
       validate: {
-        validator: function (v: string) {
-          return /^[a-zA-Z\s]+$/.test(v);
-        },
-        message: (props) => `${props.value} contains invalid characters. Only alphabets and spaces are allowed.`
-      }
+ validator: function (v: string) {
+ return /^[\p{L}][\p{L}\p{M}\s'.-]*$/u.test(v);
+ },
+ message: (props) => `${props.value} contains invalid characters.`
+ }
     },
-    email: { type: String, required: true, unique: true },
-    passwordHash: { type: String, required: true },
+    email: {
+ type: String,
+ required: true,
+ unique: true,
+ lowercase: true,
+ trim: true,
+ match: [/^\S+@\S+\.\S+$/, "Invalid email format"],
+ },
+    passwordHash: { type: String, required: true, select: false },
     role: { type: String, enum: ["admin", "employee"], default: "employee" },
     employeeId: { 
       type: Number, 

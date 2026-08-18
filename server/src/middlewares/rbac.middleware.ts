@@ -23,11 +23,13 @@ export const isSelfOrAdmin = (req: Request, res: Response, next: NextFunction) =
       return res.status(401).json({ message: "Unauthorized" });
     }
 
-    if (userRole === "admin" || userId === req.params.employeeId) {
-      return next();
-    }
+    if (userRole === "admin" || String(userId) === req.params.employeeId) {
+ return next();
+ }
 
     return res.status(403).json({ message: "Forbidden" });
   } catch (error) {
-    return res.status(500).json({ message: "Internal Server Error", error });
-}};
+ console.error("isSelfOrAdmin error:", error);
+ return res.status(500).json({ message: "Internal Server Error" });
+ }
+};
