@@ -40,7 +40,7 @@ jobs:
       - name: Deploy to S3
         working-directory: ./client
         run: |
-          aws s3 sync dist/ s3://${{ secrets.AWS_S3_BUCKET }} --delete
+          aws s3 sync dist/ s3://${{ secrets.AWS_S3_BUCKET }}/dist --delete
           
       - name: Invalidate CloudFront Cache
         run: |

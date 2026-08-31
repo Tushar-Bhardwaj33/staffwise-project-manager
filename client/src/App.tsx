@@ -25,8 +25,8 @@ export default function App() {
   return (
     <>
       <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} closeOnClick pauseOnHover />
-      <div style={{ textAlign: "center", background: "#fef08a", padding: "8px", fontWeight: "bold", color: "#854d0e" }}>
-        This is for test (CI/CD Deployment)
+      <div style={{ textAlign: "center", background: "#bbf7d0", padding: "8px", fontWeight: "bold", color: "#166534" }}>
+        This is for test (CI/CD Deployment - Version 2!)
       </div>
       <Routes>
         {/* Public */}
