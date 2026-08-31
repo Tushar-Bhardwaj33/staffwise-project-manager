@@ -121,7 +121,9 @@ export const getValidationsByEmployeeAndProject = async (req: Request, res: Resp
   } catch (error) {
     res.status(500).json({ message: 'Error fetching validations', error });
   }
-};
+}; 
+
+
 
 export const getValidationByAdminAndEmployeeAndProject = async (req: Request, res: Response) => {
   try {
